@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LST Genesis ICO</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Simple and reliable wallet connection -->
+    <script>
+        // Check if MetaMask is available
+        function isMetaMaskInstalled() {
+            return typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask;
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            if (isMetaMaskInstalled()) {
+                console.log('✅ MetaMask is installed and ready!');
+            } else {
+                console.log('❌ MetaMask is not installed');
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="purchase-container">
+            <!-- Header Section with Red Background -->
+            <div class="header-section">
+                <!-- Countdown Timer -->
+                <div class="countdown-timer" id="countdown">
+                    <div class="time-unit">
+                        <span id="hours">00</span>
+                        <span class="label">HOURS</span>
+                    </div>
+                    <div class="time-unit">
+                        <span id="minutes">00</span>
+                        <span class="label">MINUTES</span>
+                    </div>
+                    <div class="time-unit">
+                        <span id="seconds">00</span>
+                        <span class="label">SECONDS</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Section with Dark Background -->
+            <div class="content-section">
+                <!-- USD Raised Section -->
+                <div class="usd-raised-section">
+                    <div class="usd-raised-info">
+                        <span class="usd-label">LST Raised:</span>
+                        <span class="usd-amount">0 / 945,000 LST</span>
+                    </div>
+                    <div class="sold-out-bar">
+                        <div class="progress-fill"></div>
+                        <div class="sparkle-animation"></div>
+                    </div>
+                </div>
+
+                <!-- Token Price Info -->
+                <div class="token-price-info">
+                    <div class="price-line"></div>
+                    <span class="price-text">1 LST = $0.19</span>
+                    <div class="price-line"></div>
+                </div>
+
+                <!-- Token Calculator -->
+                <div class="calculator-section">
+                    <div class="calculator-row">
+                        <div class="calculator-input">
+                            <input type="number" id="tokenAmount" placeholder="LST amount" min="1" max="10000" step="0.01">
+                            <span class="token-symbol">$LST</span>
+                        </div>
+                        <div class="swap-icon">⇄</div>
+                        <div class="calculation-result">
+                            <span>Amount to Pay: </span>
+                            <span id="paymentAmount">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Countdown Note -->
+                <p class="countdown-note">
+                    <span class="info-icon">ℹ</span>
+                    LST genesis ICO can end at any time.
+                </p>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="showHowItWorks()">How it works</button>
+                    <button class="btn btn-primary" onclick="showWalletModal()">Buy $LST</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wallet Connection Modal -->
+    <div id="walletModal" class="wallet-modal">
+        <div class="wallet-modal-content">
+            <div class="wallet-modal-header">
+                <h3>Connect Wallet</h3>
+                <span class="close-modal" onclick="closeWalletModal()">&times;</span>
+            </div>
+            <div class="wallet-modal-body">
+                <p class="wallet-description">Choose your wallet to connect and purchase $LST tokens</p>
+                
+                <div class="wallet-options">
+                    <button class="wallet-option" onclick="connectMetaMask()">
+                        <div class="wallet-icon">🦊</div>
+                        <div class="wallet-info">
+                            <span class="wallet-name">MetaMask</span>
+                            <span class="wallet-desc">Connect with MetaMask</span>
+                        </div>
+                    </button>
+                </div>
+                
+                <div class="wallet-status" id="walletStatus" style="display: none;">
+                    <div class="status-message" id="statusMessage"></div>
+                    <button id="purchaseButton" class="btn btn-primary" onclick="purchaseLST()" style="display: none; margin-top: 15px; width: 100%;">
+                        Purchase $LST Tokens
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
