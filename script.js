@@ -1,5 +1,5 @@
-// Token price in USD (you can change this value)
-const TOKEN_PRICE_USD = 0.19; // $0.19 per LST token
+// Token price in ETH (you can change this value)
+const TOKEN_PRICE_ETH = 0.000045; // 0.000045 ETH per LST token
 
 // Simple wallet connection variables
 let currentAccount = null;
@@ -27,8 +27,8 @@ function calculatePayment() {
         tokenAmountInput.value = 10000;
     }
     
-    const paymentAmount = tokenAmount * TOKEN_PRICE_USD;
-    paymentAmountSpan.textContent = `$${paymentAmount.toFixed(2)}`;
+    const paymentAmount = tokenAmount * TOKEN_PRICE_ETH;
+    paymentAmountSpan.textContent = `${paymentAmount.toFixed(6)} ETH`;
 }
 
 // Countdown timer function
@@ -137,10 +137,10 @@ async function connectMetaMask() {
         
         // Show purchase summary
         const tokenAmount = parseFloat(tokenAmountInput.value) || 0;
-        const paymentAmount = tokenAmount * TOKEN_PRICE_USD;
+        const paymentAmount = tokenAmount * TOKEN_PRICE_ETH;
         
         setTimeout(() => {
-            statusMessage.textContent = `Connected! Purchase Summary:\n\nTokens: ${tokenAmount} $LST\nTotal Cost: $${paymentAmount.toFixed(2)}\nAddress: ${currentAccount.substring(0, 6)}...${currentAccount.substring(38)}\nNetwork: ${networkName}`;
+            statusMessage.textContent = `Connected! Purchase Summary:\n\nTokens: ${tokenAmount} $LST\nTotal Cost: ${paymentAmount.toFixed(6)} ETH\nAddress: ${currentAccount.substring(0, 6)}...${currentAccount.substring(38)}\nNetwork: ${networkName}`;
         }, 1000);
         
     } catch (error) {
@@ -183,7 +183,7 @@ async function purchaseLST() {
         return;
     }
     
-    const paymentAmount = tokenAmount * TOKEN_PRICE_USD;
+    const paymentAmount = tokenAmount * TOKEN_PRICE_ETH;
     const paymentAmountWei = '0x' + (paymentAmount * 1e18).toString(16); // Convert to Wei hex
     
     try {
