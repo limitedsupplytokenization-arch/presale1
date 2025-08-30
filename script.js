@@ -1,9 +1,120 @@
 // Token price in ETH (you can change this value)
 const TOKEN_PRICE_ETH = 0.000045; // 0.000045 ETH per LST token
 
+// LST Token Contract Details
+const LST_TOKEN_ADDRESS = '0x1D41F2046E119A9Ad132Fc909045a02DE6E7e502';
+const BASE_CHAIN_ID = '0x2105'; // Base Mainnet
+const BASE_CHAIN_ID_DECIMAL = 8453;
+
+// Presale Contract (will be updated after deployment)
+const PRESALE_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000000'; // TODO: Update after deployment
+
+// LST Token ABI (ERC-20 standard)
+const LST_TOKEN_ABI = [
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "name",
+        "outputs": [{"name": "", "type": "string"}],
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "symbol",
+        "outputs": [{"name": "", "type": "string"}],
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "decimals",
+        "outputs": [{"name": "", "type": "uint8"}],
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [{"name": "_owner", "type": "address"}],
+        "name": "balanceOf",
+        "outputs": [{"name": "balance", "type": "uint256"}],
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {"name": "_to", "type": "address"},
+            {"name": "_value", "type": "uint256"}
+        ],
+        "name": "transfer",
+        "outputs": [{"name": "", "type": "bool"}],
+        "type": "function"
+    }
+];
+
+// Presale Contract ABI
+const PRESALE_CONTRACT_ABI = [
+    {
+        "inputs": [{"internalType": "address", "name": "_lstToken", "type": "address"}],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {"indexed": true, "internalType": "address", "name": "buyer", "type": "address"},
+            {"indexed": false, "internalType": "uint256", "name": "ethAmount", "type": "uint256"},
+            {"indexed": false, "internalType": "uint256", "name": "tokenAmount", "type": "uint256"}
+        ],
+        "name": "TokensPurchased",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "buyLST",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getPresaleInfo",
+        "outputs": [
+            {"internalType": "uint256", "name": "_soldTokens", "type": "uint256"},
+            {"internalType": "uint256", "name": "_totalSupply", "type": "uint256"},
+            {"internalType": "uint256", "name": "_remainingTokens", "type": "uint256"},
+            {"internalType": "bool", "name": "_isActive", "type": "bool"},
+            {"internalType": "uint256", "name": "_currentPrice", "type": "uint256"},
+            {"internalType": "uint256", "name": "_startTime", "type": "uint256"},
+            {"internalType": "uint256", "name": "_endTime", "type": "uint256"},
+            {"internalType": "uint256", "name": "_currentTime", "type": "uint256"}
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getPresaleProgress",
+        "outputs": [
+            {"internalType": "uint256", "name": "_soldTokens", "type": "uint256"},
+            {"internalType": "uint256", "name": "_totalSupply", "type": "uint256"},
+            {"internalType": "uint256", "name": "_progressPercentage", "type": "uint256"}
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "isPresaleActive",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+
 // Simple wallet connection variables
 let currentAccount = null;
 let isConnected = false;
+let lstTokenContract = null;
 
 // Set countdown end date (48 hours from now, but paused for now)
 // To start the countdown, uncomment the line below and comment out the paused line
@@ -53,6 +164,44 @@ function updateCountdown() {
     hoursSpan.textContent = hours.toString().padStart(2, '0');
     minutesSpan.textContent = minutes.toString().padStart(2, '0');
     secondsSpan.textContent = seconds.toString().padStart(2, '0');
+}
+
+// Update presale progress from contract
+async function updatePresaleProgress() {
+    if (PRESALE_CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') {
+        return; // Contract not deployed yet
+    }
+    
+    try {
+        const web3 = new Web3(window.ethereum);
+        const presaleContract = new web3.eth.Contract(PRESALE_CONTRACT_ABI, PRESALE_CONTRACT_ADDRESS);
+        
+        const progress = await presaleContract.methods.getPresaleProgress().call();
+        const soldTokens = web3.utils.fromWei(progress._soldTokens, 'ether');
+        const totalSupply = web3.utils.fromWei(progress._totalSupply, 'ether');
+        const progressPercentage = progress._progressPercentage;
+        
+        // Update progress bar
+        const progressFill = document.querySelector('.progress-fill');
+        if (progressFill) {
+            progressFill.style.width = `${progressPercentage}%`;
+        }
+        
+        // Update sold amount display
+        const soldAmountElement = document.querySelector('.usd-amount');
+        if (soldAmountElement) {
+            soldAmountElement.textContent = `${parseInt(soldTokens).toLocaleString()} / 945,000 LST`;
+        }
+        
+        console.log('Presale Progress Updated:', {
+            soldTokens: soldTokens,
+            totalSupply: totalSupply,
+            progressPercentage: progressPercentage
+        });
+        
+    } catch (error) {
+        console.error('Failed to update presale progress:', error);
+    }
 }
 
 // Button functions
@@ -127,9 +276,24 @@ async function connectMetaMask() {
         
         console.log('Connected to network:', networkName, 'ID:', chainId);
         
+        // Check if connected to Base network
+        if (chainId !== BASE_CHAIN_ID) {
+            statusDiv.style.background = 'rgba(255, 165, 0, 0.2)';
+            statusMessage.textContent = `Please switch to Base network to purchase LST tokens.\nCurrent: ${networkName}\nRequired: Base Mainnet`;
+            return;
+        }
+        
+        // Initialize LST token contract
+        try {
+            lstTokenContract = new web3.eth.Contract(LST_TOKEN_ABI, LST_TOKEN_ADDRESS);
+            console.log('LST Token contract initialized');
+        } catch (error) {
+            console.error('Failed to initialize LST contract:', error);
+        }
+        
         // Update status
         statusDiv.style.background = 'rgba(76, 175, 80, 0.2)';
-        statusMessage.textContent = `Connected! Address: ${currentAccount.substring(0, 6)}...${currentAccount.substring(38)}\nNetwork: ${networkName}`;
+        statusMessage.textContent = `Connected! Address: ${currentAccount.substring(0, 6)}...${currentAccount.substring(38)}\nNetwork: Base Mainnet`;
         
         // Show purchase button
         const purchaseButton = document.getElementById('purchaseButton');
@@ -161,6 +325,8 @@ function getNetworkName(networkId) {
         case 97: return 'BSC Testnet';
         case 137: return 'Polygon Mainnet';
         case 80001: return 'Polygon Mumbai Testnet';
+        case 8453: return 'Base Mainnet';
+        case 84531: return 'Base Goerli Testnet';
         default: return `Network ID: ${networkId}`;
     }
 }
@@ -169,6 +335,13 @@ function getNetworkName(networkId) {
 async function purchaseLST() {
     if (!isConnected || !currentAccount) {
         alert('Please connect your wallet first.');
+        return;
+    }
+    
+    // Check if connected to Base network
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    if (chainId !== BASE_CHAIN_ID) {
+        alert('Please switch to Base network to purchase LST tokens.');
         return;
     }
     
@@ -187,11 +360,18 @@ async function purchaseLST() {
     const paymentAmountWei = '0x' + (paymentAmount * 1e18).toString(16); // Convert to Wei hex
     
     try {
-        // Create transaction object
+        // Check if presale contract is deployed
+        if (PRESALE_CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') {
+            alert('Presale contract not deployed yet. Please contact the team.');
+            return;
+        }
+        
+        // Create transaction to presale contract
         const transactionParameters = {
-            to: '0x0000000000000000000000000000000000000000', // Replace with actual contract address
+            to: PRESALE_CONTRACT_ADDRESS,
             from: currentAccount,
-            value: paymentAmountWei
+            value: paymentAmountWei,
+            data: '0x' // buyLST() function call
         };
         
         // Send transaction
@@ -201,7 +381,12 @@ async function purchaseLST() {
         });
         
         console.log('Transaction sent:', txHash);
-        alert(`Purchase successful! Transaction hash: ${txHash}`);
+        alert(`Purchase successful! Transaction hash: ${txHash}\n\nLST tokens will be automatically sent to your wallet.`);
+        
+        // Update progress bar after successful purchase
+        setTimeout(() => {
+            updatePresaleProgress();
+        }, 5000); // Wait 5 seconds for transaction confirmation
         
     } catch (error) {
         console.error('Transaction failed:', error);
