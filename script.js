@@ -1,3 +1,6 @@
+// Privy Configuration
+const PRIVY_APP_ID = 'YOUR_PRIVY_APP_ID'; // Privy App ID'nizi buraya ekleyin
+
 // Token price in ETH (you can change this value)
 const TOKEN_PRICE_ETH = 0.000045; // 0.000045 ETH per LST token
 
@@ -115,6 +118,7 @@ const PRESALE_CONTRACT_ABI = [
 let currentAccount = null;
 let isConnected = false;
 let lstTokenContract = null;
+let privy = null;
 
 // Set countdown end date (48 hours from now, but paused for now)
 // To start the countdown, uncomment the line below and comment out the paused line
@@ -231,86 +235,43 @@ function closeWalletModal() {
     document.getElementById('walletStatus').style.display = 'none';
 }
 
-async function connectMetaMask() {
+async function connectWallet() {
     const statusDiv = document.getElementById('walletStatus');
     const statusMessage = document.getElementById('statusMessage');
     
     statusDiv.style.display = 'block';
     statusDiv.style.background = 'rgba(255, 255, 255, 0.1)';
-    statusMessage.textContent = 'Connecting to MetaMask...';
+    statusMessage.textContent = 'Connecting wallet...';
     
     try {
-        console.log('Starting MetaMask connection...');
+        console.log('Starting Privy wallet connection...');
         
-        // Check if MetaMask is available
-        if (typeof window.ethereum === 'undefined') {
-            throw new Error('MetaMask is not installed. Please install MetaMask extension.');
+        if (!privy) {
+            throw new Error('Privy is not initialized. Please refresh the page.');
         }
         
-        if (!window.ethereum.isMetaMask) {
-            throw new Error('MetaMask is not installed. Please install MetaMask extension.');
-        }
+        // Open Privy login modal
+        await privy.login();
         
-        console.log('MetaMask detected, requesting accounts...');
-        
-        // Request accounts
-        const accounts = await window.ethereum.request({
-            method: 'eth_requestAccounts'
-        });
-        
-        console.log('Accounts received:', accounts);
-        
-        if (!accounts || accounts.length === 0) {
-            throw new Error('No accounts found. Please unlock MetaMask.');
-        }
-        
-        // Success!
-        currentAccount = accounts[0];
-        isConnected = true;
-        
-        console.log('Successfully connected to:', currentAccount);
-        
-        // Get network info
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-        const networkName = getNetworkName(parseInt(chainId, 16));
-        
-        console.log('Connected to network:', networkName, 'ID:', chainId);
-        
-        // Check if connected to Base network
-        if (chainId !== BASE_CHAIN_ID) {
-            statusDiv.style.background = 'rgba(255, 165, 0, 0.2)';
-            statusMessage.textContent = `Please switch to Base network to purchase LST tokens.\nCurrent: ${networkName}\nRequired: Base Mainnet`;
-            return;
-        }
-        
-        // Initialize LST token contract
-        try {
-            lstTokenContract = new web3.eth.Contract(LST_TOKEN_ABI, LST_TOKEN_ADDRESS);
-            console.log('LST Token contract initialized');
-        } catch (error) {
-            console.error('Failed to initialize LST contract:', error);
-        }
-        
-        // Update status
-        statusDiv.style.background = 'rgba(76, 175, 80, 0.2)';
-        statusMessage.textContent = `Connected! Address: ${currentAccount.substring(0, 6)}...${currentAccount.substring(38)}\nNetwork: Base Mainnet`;
-        
-        // Show purchase button
-        const purchaseButton = document.getElementById('purchaseButton');
-        purchaseButton.style.display = 'block';
-        
-        // Show purchase summary
-        const tokenAmount = parseFloat(tokenAmountInput.value) || 0;
-        const paymentAmount = tokenAmount * TOKEN_PRICE_ETH;
-        
-        setTimeout(() => {
-            statusMessage.textContent = `Connected! Purchase Summary:\n\nTokens: ${tokenAmount} $LST\nTotal Cost: ${paymentAmount.toFixed(6)} ETH\nAddress: ${currentAccount.substring(0, 6)}...${currentAccount.substring(38)}\nNetwork: ${networkName}`;
-        }, 1000);
+        console.log('Privy login initiated');
         
     } catch (error) {
-        console.error('MetaMask connection error:', error);
+        console.error('Wallet connection error:', error);
         statusDiv.style.background = 'rgba(244, 67, 54, 0.2)';
         statusMessage.textContent = `Connection failed: ${error.message}`;
+    }
+}
+
+async function disconnectWallet() {
+    if (!privy) {
+        return;
+    }
+
+    try {
+        await privy.logout();
+        console.log('User disconnected from Privy');
+    } catch (error) {
+        console.error('Logout failed:', error);
     }
 }
 
@@ -405,8 +366,79 @@ window.onclick = function(event) {
 // Event listeners
 tokenAmountInput.addEventListener('input', calculatePayment);
 
+// Initialize Privy
+async function initializePrivy() {
+    try {
+        privy = new Privy({
+            appId: PRIVY_APP_ID,
+            config: {
+                loginMethods: ['email', 'wallet'],
+                appearance: {
+                    theme: 'dark',
+                    accentColor: '#ffffff',
+                    showWalletLoginFirst: true
+                },
+                defaultChain: 8453, // Base Mainnet
+                supportedChains: [8453] // Only Base
+            }
+        });
+        
+        await privy.init();
+        console.log('Privy initialized successfully');
+        
+        // Listen for authentication changes
+        privy.on('auth:changed', (user) => {
+            if (user) {
+                console.log('User authenticated:', user);
+                currentAccount = user.wallet?.address;
+                isConnected = true;
+                updateUI();
+            } else {
+                console.log('User disconnected');
+                currentAccount = null;
+                isConnected = false;
+                updateUI();
+            }
+        });
+        
+        // Update UI function
+        function updateUI() {
+            const connectButton = document.getElementById('connectButton');
+            const purchaseButton = document.getElementById('purchaseButton');
+            const statusDiv = document.getElementById('walletStatus');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            if (isConnected && currentAccount) {
+                connectButton.textContent = `Connected: ${currentAccount.substring(0, 6)}...${currentAccount.substring(38)}`;
+                connectButton.style.background = 'rgba(76, 175, 80, 0.8)';
+                connectButton.onclick = disconnectWallet;
+                purchaseButton.style.display = 'block';
+                statusDiv.style.display = 'none';
+                
+                // Show purchase summary
+                const tokenAmount = parseFloat(tokenAmountInput.value) || 0;
+                const paymentAmount = tokenAmount * TOKEN_PRICE_ETH;
+                
+                statusMessage.textContent = `Connected! Purchase Summary:\n\nTokens: ${tokenAmount} $LST\nTotal Cost: ${paymentAmount.toFixed(6)} ETH\nAddress: ${currentAccount.substring(0, 6)}...${currentAccount.substring(38)}\nNetwork: Base Mainnet`;
+            } else {
+                connectButton.textContent = 'Connect Wallet';
+                connectButton.style.background = 'rgba(255, 255, 255, 0.1)';
+                connectButton.onclick = connectWallet;
+                purchaseButton.style.display = 'none';
+                statusDiv.style.display = 'none';
+            }
+        }
+        
+    } catch (error) {
+        console.error('Failed to initialize Privy:', error);
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Privy
+    initializePrivy();
+    
     // Set initial calculation
     calculatePayment();
     
