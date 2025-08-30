@@ -1,5 +1,5 @@
 // Privy Configuration
-const PRIVY_APP_ID = 'YOUR_PRIVY_APP_ID'; // Privy App ID'nizi buraya ekleyin
+const PRIVY_APP_ID = 'cmey5yzm600yrl50bv9djp7qv'; // Privy App ID'nizi buraya ekleyin
 
 // Token price in ETH (you can change this value)
 const TOKEN_PRICE_ETH = 0.000045; // 0.000045 ETH per LST token
