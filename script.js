@@ -361,7 +361,7 @@ async function purchaseLST() {
     
     try {
         // Check if presale contract is deployed
-        if (PRESALE_CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') {
+        if (PRESALE_CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000' || PRESALE_CONTRACT_ADDRESS === '') {
             alert('Presale contract not deployed yet. Please contact the team.');
             return;
         }
