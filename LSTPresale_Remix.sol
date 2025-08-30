@@ -77,9 +77,9 @@ contract LSTPresale is Ownable, ReentrancyGuard {
     address public ethReceiver = 0xE2e7183C1b6d53812ecCB5f1D3B48757D5d03cF4;
     address public lstDistributor = 0xE2e7183C1b6d53812ecCB5f1D3B48757D5d03cF4;
     
-    // 10 Eylül 2025 00:00 UTC - 12 Eylül 2025 00:00 UTC (48 saat)
-    uint256 public presaleStartTime = 1757635200; // 10 Eylül 2025 00:00 UTC
-    uint256 public presaleEndTime = 1757808000;   // 12 Eylül 2025 00:00 UTC
+    // Hemen başla - 48 saat süre
+    uint256 public presaleStartTime = block.timestamp; // Hemen başla
+    uint256 public presaleEndTime = block.timestamp + 172800;   // 48 saat sonra (172800 saniye)
     
     bool public presaleActive = false;
     

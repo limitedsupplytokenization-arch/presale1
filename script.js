@@ -7,7 +7,7 @@ const BASE_CHAIN_ID = '0x2105'; // Base Mainnet
 const BASE_CHAIN_ID_DECIMAL = 8453;
 
 // Presale Contract (will be updated after deployment)
-const PRESALE_CONTRACT_ADDRESS = '0xAb6448f9c3F55fF01bc476926F9f0dafe544688B'; // Deployed on Base Mainnet
+const PRESALE_CONTRACT_ADDRESS = '0xb9bA8E0BC46f8d3027936e20bbC6DD438Ea1B604'; // Deployed on Base Mainnet - Immediate Start
 
 // LST Token ABI (ERC-20 standard)
 const LST_TOKEN_ABI = [
