@@ -15,13 +15,13 @@ module.exports = {
   networks: {
     base: {
       url: "https://mainnet.base.org",
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: ["0f2843ed9783da1de030f51bd28519299b4aba49d439e11e1ddebd7fb8e27ba9f"],
       chainId: 8453,
       gasPrice: 1000000000, // 1 gwei
     },
     baseGoerli: {
       url: "https://goerli.base.org",
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: ["0f2843ed9783da1de030f51bd28519299b4aba49d439e11e1ddebd7fb8e27ba9f"],
       chainId: 84531,
       gasPrice: 1000000000, // 1 gwei
     }

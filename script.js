@@ -7,7 +7,7 @@ const BASE_CHAIN_ID = '0x2105'; // Base Mainnet
 const BASE_CHAIN_ID_DECIMAL = 8453;
 
 // Presale Contract (will be updated after deployment)
-const PRESALE_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000000'; // TODO: Update after deployment
+const PRESALE_CONTRACT_ADDRESS = '0xAb6448f9c3F55fF01bc476926F9f0dafe544688B'; // Deployed on Base Mainnet
 
 // LST Token ABI (ERC-20 standard)
 const LST_TOKEN_ABI = [
@@ -371,7 +371,7 @@ async function purchaseLST() {
             to: PRESALE_CONTRACT_ADDRESS,
             from: currentAccount,
             value: paymentAmountWei,
-            data: '0x' // buyLST() function call
+            data: '0x' // buyLST() function call - empty data for payable function
         };
         
         // Send transaction
