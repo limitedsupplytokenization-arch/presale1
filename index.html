@@ -6,10 +6,8 @@
     <title>LST Genesis ICO</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Privy SDK -->
-    <script src="https://unpkg.com/@privy-io/privy-browser@1.0.0/dist/privy-browser.js"></script>
-    <!-- Web3.js for contract interaction -->
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+
+
     
     <!-- Simple and reliable wallet connection -->
     <script>
@@ -97,41 +95,13 @@
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button class="btn btn-secondary" onclick="showHowItWorks()">How it works</button>
-                    <button class="btn btn-primary" onclick="showWalletModal()">Buy $LST</button>
+                    <button class="btn btn-primary" onclick="purchaseLST()">Buy $LST</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Wallet Connection Modal -->
-    <div id="walletModal" class="wallet-modal">
-        <div class="wallet-modal-content">
-            <div class="wallet-modal-header">
-                <h3>Connect Wallet</h3>
-                <span class="close-modal" onclick="closeWalletModal()">&times;</span>
-            </div>
-            <div class="wallet-modal-body">
-                <p class="wallet-description">Choose your wallet to connect and purchase $LST tokens</p>
-                
-                <div class="wallet-options">
-                    <button class="wallet-option" onclick="connectWallet()">
-                        <div class="wallet-icon">🔗</div>
-                        <div class="wallet-info">
-                            <span class="wallet-name">Connect Wallet</span>
-                            <span class="wallet-desc">Connect with Privy</span>
-                        </div>
-                    </button>
-                </div>
-                
-                <div class="wallet-status" id="walletStatus" style="display: none;">
-                    <div class="status-message" id="statusMessage"></div>
-                    <button id="purchaseButton" class="btn btn-primary" onclick="purchaseLST()" style="display: none; margin-top: 15px; width: 100%;">
-                        Purchase $LST Tokens
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <script src="script.js"></script>
 </body>
