@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LST Genesis ICO</title>
+    <link rel="icon" type="image/jpeg" href="favicon.jpeg">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
 
 
     
@@ -28,80 +29,156 @@
 </head>
 <body>
     <div class="container">
-        <div class="purchase-container">
-            <!-- Header Section with Red Background -->
-            <div class="header-section">
-                <!-- Countdown Timer -->
-                <div class="countdown-timer" id="countdown">
-                    <div class="time-unit">
-                        <span id="hours">00</span>
-                        <span class="label">HOURS</span>
+        
+        <!-- Presale Stats Section -->
+        <div class="presale-stats-section">
+            <div class="presale-content">
+                <div class="presale-header">
+                    <h1 class="presale-title">LST Token Presale</h1>
+                    <p class="presale-subtitle">Limited supply, unlimited potential</p>
+                    
+                    <!-- Countdown Timer -->
+                    <div class="countdown-timer" id="countdown">
+                        <div class="time-unit">
+                            <span id="hours">00</span>
+                            <span class="label">HOURS</span>
+                        </div>
+                        <div class="time-unit">
+                            <span id="minutes">00</span>
+                            <span class="label">MINUTES</span>
+                        </div>
+                        <div class="time-unit">
+                            <span id="seconds">00</span>
+                            <span class="label">SECONDS</span>
+                        </div>
                     </div>
-                    <div class="time-unit">
-                        <span id="minutes">00</span>
-                        <span class="label">MINUTES</span>
+
+                    <!-- Countdown Note -->
+                    <p class="countdown-note">
+                        <span class="info-icon">ℹ</span>
+                        LST genesis ICO can end at any time.
+                    </p>
+                    
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="purchaseLST()">Buy $LST</button>
+                        <button class="btn btn-secondary" onclick="showHowItWorks()">How it works</button>
                     </div>
-                    <div class="time-unit">
-                        <span id="seconds">00</span>
-                        <span class="label">SECONDS</span>
+                </div>
+                <div class="presale-stats-container">
+                    <div class="stat-item">
+                        <div class="stat-label">Total Raised</div>
+                        <div class="stat-value">$0</div>
                     </div>
+                    <div class="progress-section">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-percentage">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Token Price</div>
+                        <div class="stat-value">$0.152</div>
+                    </div>
+                <div class="stat-item">
+                    <div class="stat-label">Tokens for Sale</div>
+                    <div class="stat-value">945.000 LST</div>
+                </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- Disclaimer Banner -->
+        <div class="disclaimer-banner">
+            <div class="disclaimer-content">⚠️ Disclaimer: Participation in the LST Genesis ICO is entirely at your own risk. By investing, you accept all associated risks. LST does not guarantee any profits or protection from losses.
+            </div>
+        </div>
+    </div>
 
-            <!-- Content Section with Dark Background -->
-            <div class="content-section">
-                <!-- USD Raised Section -->
-                <div class="usd-raised-section">
-                    <div class="usd-raised-info">
-                        <span class="usd-label">LST Raised:</span>
-                        <span class="usd-amount">0 / 945,000 LST</span>
-                    </div>
-                    <div class="sold-out-bar">
-                        <div class="progress-fill"></div>
-                        <div class="sparkle-animation"></div>
-                    </div>
-                </div>
-
-                <!-- Token Price Info -->
-                <div class="token-price-info">
-                    <div class="price-line"></div>
-                    <span class="price-text">1 LST = 0.000045 ETH</span>
-                    <div class="price-line"></div>
-                </div>
-
-                <!-- Token Calculator -->
-                <div class="calculator-section">
-                    <div class="calculator-row">
-                        <div class="calculator-input">
-                            <input type="number" id="tokenAmount" placeholder="LST amount" min="1" max="10000" step="0.01">
-                            <span class="token-symbol">$LST</span>
-                        </div>
-                        <div class="swap-icon">⇄</div>
-                        <div class="calculation-result">
-                            <span>to Pay: </span>
-                            <span id="paymentAmount">$0.00</span>
-                        </div>
-                    </div>
-                </div>
-
-
-
-                <!-- Countdown Note -->
-                <p class="countdown-note">
-                    <span class="info-icon">ℹ</span>
-                    LST genesis ICO can end at any time.
-                </p>
-
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <button class="btn btn-secondary" onclick="showHowItWorks()">How it works</button>
-                    <button class="btn btn-primary" onclick="purchaseLST()">Buy $LST</button>
+    <!-- How It Works Modal -->
+    <div id="howItWorksModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>How It Works</h2>
+                <button onclick="closeHowItWorks()" style="background: red; color: white; border: none; padding: 10px; margin-left: 10px; border-radius: 25px;">CLOSE</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-text">
+                    <p>To participate in the LST Genesis ICO, simply send ETH, SOL, USDC, or USDT to the official wallet addresses provided on this page.</p>
+                    
+                    <p>At the end of each round, the total funds collected will be matched with the total LST supply.<br>
+                    Your share of LST will then be distributed in a fair launch format to all participants.</p>
+                    
+                    <p class="warning"> Please note: Participation is at your own risk — LST does not guarantee profits or protect from losses.</p>
+                    
+                    <p class="highlight"> Stay tuned for more details and upcoming announcements!</p>
+                    
+                    <p class="info-link">For more information about LST, visit <a href="https://docs.lstcoins.org" target="_blank" style="color: #4ecdc4; text-decoration: underline;">docs.lstcoins.org</a>.</p>
                 </div>
             </div>
         </div>
     </div>
 
-
+    <!-- Buy LST Modal -->
+    <div id="buyLSTModal" class="modal">
+        <div class="modal-content buy-lst-modal">
+            <div class="modal-header">
+                <h2>Send assets here to get $LST</h2>
+                <button onclick="closeBuyLST()" style="background: red; color: white; border: none; padding: 10px; margin-left: 10px; border-radius: 25px;">CLOSE</button>
+            </div>
+            <div class="modal-body">
+                                    <div class="wallet-addresses">
+                        <div class="address-item">
+                            <div class="crypto-info">
+                                <h3>ETH</h3>
+                                <p class="address">0x6a24194CB4b134d1b2f5a4F6D0d3E80665D553e3</p>
+                                <button class="copy-btn" onclick="copyAddress('0x6a24194CB4b134d1b2f5a4F6D0d3E80665D553e3', this)">Copy</button>
+                            </div>
+                            <div class="qr-code">
+                                <img src="eth-usdc-qr.png" alt="ETH QR Code" class="qr-image">
+                            </div>
+                        </div>
+                        
+                        <div class="address-item">
+                            <div class="crypto-info">
+                                <h3>SOL</h3>
+                                <p class="address">5X2uhTfHdjYr72hALFPPk7Jp8pvJgN2FeMg547AGiy3P</p>
+                                <button class="copy-btn" onclick="copyAddress('5X2uhTfHdjYr72hALFPPk7Jp8pvJgN2FeMg547AGiy3P', this)">Copy</button>
+                            </div>
+                            <div class="qr-code">
+                                <img src="sol-qr.png" alt="SOL QR Code" class="qr-image">
+                            </div>
+                        </div>
+                        
+                        <div class="address-item">
+                            <div class="crypto-info">
+                                <h3>USDC</h3>
+                                <p class="address">0x6a24194CB4b134d1b2f5a4F6D0d3E80665D553e3</p>
+                                <button class="copy-btn" onclick="copyAddress('0x6a24194CB4b134d1b2f5a4F6D0d3E80665D553e3', this)">Copy</button>
+                            </div>
+                            <div class="qr-code">
+                                <img src="eth-usdc-qr.png" alt="USDC QR Code" class="qr-image">
+                            </div>
+                        </div>
+                        
+                        <div class="address-item">
+                            <div class="crypto-info">
+                                <h3>USDT TRC20</h3>
+                                <p class="address">TUBGMEMPibciWJxRJXmxvteEy9pVfkdMr3</p>
+                                <button class="copy-btn" onclick="copyAddress('TUBGMEMPibciWJxRJXmxvteEy9pVfkdMr3', this)">Copy</button>
+                            </div>
+                            <div class="qr-code">
+                                <img src="usdt-qr.png" alt="USDT TRC20 QR Code" class="qr-image">
+                            </div>
+                        </div>
+                    </div>
+                
+                <div class="modal-note">
+                    <p>⚠️ Send only the supported cryptocurrencies to the addresses above. Double-check the address before sending.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

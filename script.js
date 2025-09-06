@@ -8,6 +8,11 @@ const LST_TOKEN_ADDRESS = '0x1D41F2046E119A9Ad132Fc909045a02DE6E7e502';
 const BASE_CHAIN_ID = '0x2105'; // Base Mainnet
 const BASE_CHAIN_ID_DECIMAL = 8453;
 
+// Fundraising variables
+let totalRaised = 0; // $0 raised
+const targetAmount = 143640; // $143,640 target
+
+
 
 
 
@@ -17,18 +22,21 @@ const BASE_CHAIN_ID_DECIMAL = 8453;
 
 // Set countdown end date (48 hours from now, but paused for now)
 // To start the countdown, uncomment the line below and comment out the paused line
-// const countdownEndDate = new Date(Date.now() + (48 * 60 * 60 * 1000)).getTime();
-const countdownEndDate = new Date('2024-12-31T23:59:59').getTime(); // Paused countdown
+// Universal countdown timer variables
+// This will be the time when you upload to GitHub and make the site live
+const UNIVERSAL_COUNTDOWN_START_TIME = new Date('2025-09-06T23:25:00').getTime(); // Start at 23:25 today
+const COUNTDOWN_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 // DOM elements
 const tokenAmountInput = document.getElementById('tokenAmount');
-const paymentAmountSpan = document.getElementById('paymentAmount');
 const hoursSpan = document.getElementById('hours');
 const minutesSpan = document.getElementById('minutes');
 const secondsSpan = document.getElementById('seconds');
 
 // Token calculator function
 function calculatePayment() {
+    if (!tokenAmountInput) return;
+    
     let tokenAmount = parseFloat(tokenAmountInput.value) || 0;
     
     // Check maximum limit
@@ -36,28 +44,26 @@ function calculatePayment() {
         tokenAmount = 10000;
         tokenAmountInput.value = 10000;
     }
-    
-    const paymentAmount = tokenAmount * TOKEN_PRICE_ETH;
-    paymentAmountSpan.textContent = `${paymentAmount.toFixed(6)} ETH`;
 }
 
-// Countdown timer function
+// Universal countdown timer function
 function updateCountdown() {
     const now = new Date().getTime();
-    const distance = countdownEndDate - now;
+    const elapsedTime = now - UNIVERSAL_COUNTDOWN_START_TIME;
+    const remainingTime = COUNTDOWN_DURATION - elapsedTime;
 
-    if (distance < 0) {
-        // Countdown has ended
+    if (remainingTime <= 0) {
+        // Countdown has ended globally
         hoursSpan.textContent = '00';
         minutesSpan.textContent = '00';
         secondsSpan.textContent = '00';
         return;
     }
 
-    // Calculate time units
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    // Calculate time units (2 minutes max)
+    const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+    const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
 
     // Update display
     hoursSpan.textContent = hours.toString().padStart(2, '0');
@@ -69,8 +75,110 @@ function updateCountdown() {
 
 // Button functions
 function showHowItWorks() {
-    alert('How it works:\n\n1. Enter the amount of LST tokens you want to buy\n2. See the total cost in USD\n3. Click "Buy $LST" to proceed with the purchase\n4. Connect your wallet and complete the transaction\n\nThis is a demo version. In the real implementation, this would show a detailed modal or redirect to a help page.');
+    const modal = document.getElementById('howItWorksModal');
+    modal.style.display = 'block';
+    // Trigger animation
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
 }
+
+function closeHowItWorks() {
+    const modal = document.getElementById('howItWorksModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+// Global functions for onclick
+window.showHowItWorks = showHowItWorks;
+window.closeHowItWorks = closeHowItWorks;
+
+// Fundraising functions
+function updateFundraisingDisplay() {
+    const totalRaisedElement = document.querySelector('.stat-value');
+    const progressFill = document.querySelector('.progress-fill');
+    const progressPercentage = document.querySelector('.progress-percentage');
+    
+    if (totalRaisedElement) {
+        totalRaisedElement.textContent = `$${totalRaised.toLocaleString()}`;
+    }
+    
+    if (progressFill && progressPercentage) {
+        const percentage = Math.min((totalRaised / targetAmount) * 100, 100);
+        progressFill.style.width = `${percentage}%`;
+        progressPercentage.textContent = `${Math.round(percentage)}%`;
+    }
+}
+
+// Function to update total raised amount (you can call this manually)
+function updateTotalRaised(newAmount) {
+    totalRaised = newAmount;
+    updateFundraisingDisplay();
+}
+
+// Global function for manual updates
+window.updateTotalRaised = updateTotalRaised;
+
+// Copy address function
+function copyAddress(address, buttonElement) {
+    navigator.clipboard.writeText(address).then(function() {
+        // Show success feedback
+        const copyBtn = buttonElement || event.target;
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied';
+        copyBtn.style.background = 'rgba(76, 175, 80, 0.3)';
+        copyBtn.style.borderColor = 'rgba(76, 175, 80, 0.5)';
+        copyBtn.style.color = '#4CAF50';
+        
+        setTimeout(function() {
+            copyBtn.textContent = originalText;
+            copyBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+            copyBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            copyBtn.style.color = '#ffffff';
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = address;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        // Show feedback even with fallback
+        const copyBtn = buttonElement || event.target;
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied';
+        copyBtn.style.background = 'rgba(76, 175, 80, 0.3)';
+        copyBtn.style.borderColor = 'rgba(76, 175, 80, 0.5)';
+        copyBtn.style.color = '#4CAF50';
+        
+        setTimeout(function() {
+            copyBtn.textContent = originalText;
+            copyBtn.style.background = 'rgba(255, 255, 255, 0.1)';
+            copyBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            copyBtn.style.color = '#ffffff';
+        }, 2000);
+    });
+}
+
+// Global function for copy
+window.copyAddress = copyAddress;
+
+// Close Buy LST Modal function
+function closeBuyLST() {
+    const modal = document.getElementById('buyLSTModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+// Global function for close
+window.closeBuyLST = closeBuyLST;
 
 
 
@@ -95,40 +203,40 @@ function getNetworkName(networkId) {
 
 // Simple purchase function (demo)
 function purchaseLST() {
-    const tokenAmount = parseFloat(tokenAmountInput.value) || 0;
-    
-    if (tokenAmount < 1) {
-        alert('Minimum purchase amount is 1 LST token.');
-        return;
-    }
-    
-    if (tokenAmount > 10000) {
-        alert('Maximum purchase amount is 10,000 LST tokens.');
-        return;
-    }
-    
-    const paymentAmount = tokenAmount * TOKEN_PRICE_ETH;
-    
-    alert(`Demo Mode: Purchase ${tokenAmount} LST tokens for ${paymentAmount.toFixed(6)} ETH\n\nIn production, this would connect to MetaMask and process the transaction on-chain.`);
+    const modal = document.getElementById('buyLSTModal');
+    modal.style.display = 'block';
+    // Trigger animation
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
 }
 
 
 
-// Event listeners
-tokenAmountInput.addEventListener('input', calculatePayment);
+// Event listeners (if tokenAmountInput exists)
+if (tokenAmountInput) {
+    tokenAmountInput.addEventListener('input', function() {
+        let tokenAmount = parseFloat(tokenAmountInput.value) || 0;
+        
+        // Check maximum limit
+        if (tokenAmount > 10000) {
+            tokenAmount = 10000;
+            tokenAmountInput.value = 10000;
+        }
+    });
+}
+
 
 
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    // Set initial calculation
-    calculatePayment();
-    
     // Start countdown timer
     updateCountdown();
     setInterval(updateCountdown, 1000);
     
-            // Add some interactive effects
+    // Add some interactive effects (if tokenAmountInput exists)
+    if (tokenAmountInput) {
         tokenAmountInput.addEventListener('focus', function() {
             this.parentElement.style.transform = 'scale(1.02)';
         });
@@ -136,6 +244,18 @@ document.addEventListener('DOMContentLoaded', function() {
         tokenAmountInput.addEventListener('blur', function() {
             this.parentElement.style.transform = 'scale(1)';
         });
+    }
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('howItWorksModal');
+        if (event.target === modal) {
+            closeHowItWorks();
+        }
+    });
+    
+    // Initialize fundraising display
+    updateFundraisingDisplay();
 });
 
 // Add some visual feedback for the countdown
