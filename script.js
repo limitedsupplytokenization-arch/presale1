@@ -24,7 +24,7 @@ const targetAmount = 143640; // $143,640 target
 // To start the countdown, uncomment the line below and comment out the paused line
 // Universal countdown timer variables
 // This will be the time when you upload to GitHub and make the site live
-const UNIVERSAL_COUNTDOWN_START_TIME = new Date('2025-09-06T23:25:00').getTime(); // Start at 23:25 today
+const UNIVERSAL_COUNTDOWN_START_TIME = Date.now(); // Start now
 const COUNTDOWN_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 // DOM elements
