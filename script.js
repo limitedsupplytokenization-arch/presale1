@@ -52,15 +52,37 @@ function calculatePayment() {
 
 // Universal countdown timer function
 function updateCountdown() {
+    // Get DOM elements each time to ensure they exist
+    const hoursElement = document.getElementById('hours');
+    const minutesElement = document.getElementById('minutes');
+    const secondsElement = document.getElementById('seconds');
+    
+    // Check if DOM elements exist
+    if (!hoursElement || !minutesElement || !secondsElement) {
+        console.error('Countdown DOM elements not found!', {
+            hours: !!hoursElement,
+            minutes: !!minutesElement,
+            seconds: !!secondsElement
+        });
+        return;
+    }
+
     const now = new Date().getTime();
     const elapsedTime = now - UNIVERSAL_COUNTDOWN_START_TIME;
     const remainingTime = COUNTDOWN_DURATION - elapsedTime;
 
+    console.log('Countdown debug:', {
+        now: new Date(now).toLocaleString(),
+        start: new Date(UNIVERSAL_COUNTDOWN_START_TIME).toLocaleString(),
+        elapsed: elapsedTime,
+        remaining: remainingTime
+    });
+
     if (remainingTime <= 0) {
         // Countdown has ended globally
-        hoursSpan.textContent = '00';
-        minutesSpan.textContent = '00';
-        secondsSpan.textContent = '00';
+        hoursElement.textContent = '00';
+        minutesElement.textContent = '00';
+        secondsElement.textContent = '00';
         return;
     }
 
@@ -70,9 +92,9 @@ function updateCountdown() {
     const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
 
     // Update display
-    hoursSpan.textContent = hours.toString().padStart(2, '0');
-    minutesSpan.textContent = minutes.toString().padStart(2, '0');
-    secondsSpan.textContent = seconds.toString().padStart(2, '0');
+    hoursElement.textContent = hours.toString().padStart(2, '0');
+    minutesElement.textContent = minutes.toString().padStart(2, '0');
+    secondsElement.textContent = seconds.toString().padStart(2, '0');
 }
 
 // Function to reset countdown (useful for testing or manual reset)
