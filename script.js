@@ -26,20 +26,10 @@ github
 // This will be the time when you upload to GitHub and make the site live
 const COUNTDOWN_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-// Get or set the countdown start time from localStorage
-function getCountdownStartTime() {
-    const stored = localStorage.getItem('countdownStartTime');
-    if (stored) {
-        return parseInt(stored);
-    } else {
-        // First time - set the start time
-        const startTime = Date.now();
-        localStorage.setItem('countdownStartTime', startTime.toString());
-        return startTime;
-    }
-}
-
-const UNIVERSAL_COUNTDOWN_START_TIME = getCountdownStartTime();
+// Fixed countdown start time - set this to when you deploy to GitHub
+// Format: new Date('YYYY-MM-DD HH:MM:SS').getTime()
+// Example: new Date('2024-01-15 14:30:00').getTime()
+const UNIVERSAL_COUNTDOWN_START_TIME = new Date('2024-12-19 15:00:00').getTime(); // Set your deployment time here
 
 // DOM elements
 const tokenAmountInput = document.getElementById('tokenAmount');
@@ -86,9 +76,9 @@ function updateCountdown() {
 }
 
 // Function to reset countdown (useful for testing or manual reset)
+// Note: To reset countdown, you need to update the UNIVERSAL_COUNTDOWN_START_TIME constant above
 function resetCountdown() {
-    localStorage.removeItem('countdownStartTime');
-    location.reload(); // Reload page to restart countdown
+    alert('To reset countdown, update the UNIVERSAL_COUNTDOWN_START_TIME constant in the code with the current time.');
 }
 
 // Global function for manual reset
