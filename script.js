@@ -25,10 +25,8 @@ const targetAmount = 143640; // $143,640 target
 // This will be the time when you upload to GitHub and make the site live
 const COUNTDOWN_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-// Fixed countdown start time - set this to when you deploy to GitHub
-// Format: new Date('YYYY-MM-DD HH:MM:SS').getTime()
-// Example: new Date('2024-01-15 14:30:00').getTime()
-const UNIVERSAL_COUNTDOWN_START_TIME = new Date('2025-09-07 12:05:00').getTime(); // Set your deployment time here
+// Countdown starts immediately when the code is created/deployed
+const UNIVERSAL_COUNTDOWN_START_TIME = Date.now(); // Starts right now!
 
 // DOM elements
 const tokenAmountInput = document.getElementById('tokenAmount');
