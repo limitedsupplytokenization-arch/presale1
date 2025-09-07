@@ -28,7 +28,7 @@ const COUNTDOWN_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 // Fixed countdown start time - set this to when you deploy to GitHub
 // Format: new Date('YYYY-MM-DD HH:MM:SS').getTime()
 // Example: new Date('2024-01-15 14:30:00').getTime()
-const UNIVERSAL_COUNTDOWN_START_TIME = new Date('2025-09-07 11:53:00').getTime(); // Set your deployment time here
+const UNIVERSAL_COUNTDOWN_START_TIME = new Date('2025-09-07 12:05:00').getTime(); // Set your deployment time here
 
 // DOM elements
 const tokenAmountInput = document.getElementById('tokenAmount');
@@ -315,16 +315,20 @@ document.addEventListener('DOMContentLoaded', function() {
 // Add some visual feedback for the countdown
 function addCountdownEffects() {
     const countdownElement = document.getElementById('countdown');
+    if (!countdownElement) return;
     
     // Add a subtle glow effect when time is running low
     const now = new Date().getTime();
+    const countdownEndDate = UNIVERSAL_COUNTDOWN_START_TIME + COUNTDOWN_DURATION;
     const distance = countdownEndDate - now;
-    const hoursLeft = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutesLeft = Math.floor(distance / (1000 * 60));
     
-    if (hoursLeft <= 48) {
-        countdownElement.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.2)';
-    } else if (hoursLeft <= 72) {
-        countdownElement.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.1)';
+    if (minutesLeft <= 1) {
+        countdownElement.style.boxShadow = '0 0 15px rgba(255, 0, 0, 0.3)';
+    } else if (minutesLeft <= 2) {
+        countdownElement.style.boxShadow = '0 0 10px rgba(255, 255, 0, 0.2)';
+    } else {
+        countdownElement.style.boxShadow = '0 0 5px rgba(255, 255, 255, 0.1)';
     }
 }
 
