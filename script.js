@@ -264,11 +264,31 @@ if (tokenAmountInput) {
 
 
 
+// Initialize countdown with retry mechanism
+function initializeCountdown() {
+    console.log('Initializing countdown...');
+    
+    // Try to start countdown
+    updateCountdown();
+    
+    // If countdown elements are found, start the interval
+    const hoursElement = document.getElementById('hours');
+    const minutesElement = document.getElementById('minutes');
+    const secondsElement = document.getElementById('seconds');
+    
+    if (hoursElement && minutesElement && secondsElement) {
+        console.log('Countdown elements found, starting timer...');
+        setInterval(updateCountdown, 1000);
+    } else {
+        console.log('Countdown elements not found, retrying in 100ms...');
+        setTimeout(initializeCountdown, 100);
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    // Start countdown timer
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+    console.log('DOM Content Loaded, initializing...');
+    initializeCountdown();
     
     // Add some interactive effects (if tokenAmountInput exists)
     if (tokenAmountInput) {
