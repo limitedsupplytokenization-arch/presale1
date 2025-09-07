@@ -11,7 +11,6 @@ const BASE_CHAIN_ID_DECIMAL = 8453;
 // Fundraising variables
 let totalRaised = 0; // $0 raised
 const targetAmount = 143640; // $143,640 target
-github
 
 
 
