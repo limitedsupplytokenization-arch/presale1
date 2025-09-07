@@ -11,7 +11,7 @@ const BASE_CHAIN_ID_DECIMAL = 8453;
 // Fundraising variables
 let totalRaised = 0; // $0 raised
 const targetAmount = 143640; // $143,640 target
-
+github
 
 
 
@@ -24,8 +24,22 @@ const targetAmount = 143640; // $143,640 target
 // To start the countdown, uncomment the line below and comment out the paused line
 // Universal countdown timer variables
 // This will be the time when you upload to GitHub and make the site live
-const UNIVERSAL_COUNTDOWN_START_TIME = Date.now(); // Start now
 const COUNTDOWN_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+// Get or set the countdown start time from localStorage
+function getCountdownStartTime() {
+    const stored = localStorage.getItem('countdownStartTime');
+    if (stored) {
+        return parseInt(stored);
+    } else {
+        // First time - set the start time
+        const startTime = Date.now();
+        localStorage.setItem('countdownStartTime', startTime.toString());
+        return startTime;
+    }
+}
+
+const UNIVERSAL_COUNTDOWN_START_TIME = getCountdownStartTime();
 
 // DOM elements
 const tokenAmountInput = document.getElementById('tokenAmount');
@@ -60,7 +74,7 @@ function updateCountdown() {
         return;
     }
 
-    // Calculate time units (2 minutes max)
+    // Calculate time units
     const hours = Math.floor(remainingTime / (1000 * 60 * 60));
     const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
@@ -70,6 +84,15 @@ function updateCountdown() {
     minutesSpan.textContent = minutes.toString().padStart(2, '0');
     secondsSpan.textContent = seconds.toString().padStart(2, '0');
 }
+
+// Function to reset countdown (useful for testing or manual reset)
+function resetCountdown() {
+    localStorage.removeItem('countdownStartTime');
+    location.reload(); // Reload page to restart countdown
+}
+
+// Global function for manual reset
+window.resetCountdown = resetCountdown;
 
 
 
