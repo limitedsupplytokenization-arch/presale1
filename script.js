@@ -1,336 +1,506 @@
+// Geri sayım zamanlayıcısı
+const countdownEndDate = new Date('2025-09-15T11:00:00').getTime();
 
-
-// Token price in ETH (you can change this value)
-const TOKEN_PRICE_ETH = 0.000045; // 0.000045 ETH per LST token
-
-// LST Token Contract Details
-const LST_TOKEN_ADDRESS = '0x1D41F2046E119A9Ad132Fc909045a02DE6E7e502';
-const BASE_CHAIN_ID = '0x2105'; // Base Mainnet
-const BASE_CHAIN_ID_DECIMAL = 8453;
-
-// Fundraising variables
-let totalRaised = 0; // $0 raised
-const targetAmount = 143640; // $143,640 target
-
-
-
-
-
-// Simple wallet connection variables
-
-
-// Set countdown end date (48 hours from now, but paused for now)
-// To start the countdown, uncomment the line below and comment out the paused line
-// Universal countdown timer variables
-// This will be the time when you upload to GitHub and make the site live
-const COUNTDOWN_DURATION = 48 * 60 * 60 * 1000; // 48 hours in milliseconds
-
-// Universal countdown start time - same for all users
-// This time is set when the code is deployed to GitHub
-// All users will see the same countdown regardless of when they visit
-const UNIVERSAL_COUNTDOWN_START_TIME = new Date('2025-09-07 12:15:00').getTime(); // Set this to your deployment time
-
-// DOM elements
-const tokenAmountInput = document.getElementById('tokenAmount');
-const hoursSpan = document.getElementById('hours');
-const minutesSpan = document.getElementById('minutes');
-const secondsSpan = document.getElementById('seconds');
-
-// Token calculator function
-function calculatePayment() {
-    if (!tokenAmountInput) return;
-    
-    let tokenAmount = parseFloat(tokenAmountInput.value) || 0;
-    
-    // Check maximum limit
-    if (tokenAmount > 10000) {
-        tokenAmount = 10000;
-        tokenAmountInput.value = 10000;
-    }
-}
-
-// Universal countdown timer function
 function updateCountdown() {
-    // Get DOM elements each time to ensure they exist
-    const hoursElement = document.getElementById('hours');
-    const minutesElement = document.getElementById('minutes');
-    const secondsElement = document.getElementById('seconds');
-    
-    // Check if DOM elements exist
-    if (!hoursElement || !minutesElement || !secondsElement) {
-        console.error('Countdown DOM elements not found!', {
-            hours: !!hoursElement,
-            minutes: !!minutesElement,
-            seconds: !!secondsElement
-        });
-        return;
-    }
-
     const now = new Date().getTime();
-    const elapsedTime = now - UNIVERSAL_COUNTDOWN_START_TIME;
-    const remainingTime = COUNTDOWN_DURATION - elapsedTime;
+    const distance = countdownEndDate - now;
 
-    console.log('Countdown debug:', {
-        now: new Date(now).toLocaleString(),
-        start: new Date(UNIVERSAL_COUNTDOWN_START_TIME).toLocaleString(),
-        elapsed: elapsedTime,
-        remaining: remainingTime
-    });
-
-    if (remainingTime <= 0) {
-        // Countdown has ended globally
-        hoursElement.textContent = '00';
-        minutesElement.textContent = '00';
-        secondsElement.textContent = '00';
+    if (distance < 0) {
+        document.getElementById('countdown').innerHTML = "Sale Ended";
         return;
     }
 
-    // Calculate time units
-    const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-    const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    // Update display
-    hoursElement.textContent = hours.toString().padStart(2, '0');
-    minutesElement.textContent = minutes.toString().padStart(2, '0');
-    secondsElement.textContent = seconds.toString().padStart(2, '0');
+    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
 }
 
-// Function to reset countdown (useful for testing or manual reset)
-function resetCountdown() {
-    alert('To reset countdown, update the UNIVERSAL_COUNTDOWN_START_TIME constant in the code with the current time.');
-}
+// Presale sabitleri
+const LST_PRICE_ETH = 0.000125; // 1 LST = 0.000125 ETH
+const MIN_LST_AMOUNT = 10; // Minimum 10 LST
+const PRESALE_ADDRESS = '0xE2e7183C1b6d53812ecCB5f1D3B48757D5d03cF4'; // BASE ağı
+let connectedAccount = null;
 
-// Global function for manual reset
-window.resetCountdown = resetCountdown;
-
-
-
-// Button functions
-function showHowItWorks() {
-    const modal = document.getElementById('howItWorksModal');
-    modal.style.display = 'block';
-    // Trigger animation
-    setTimeout(() => {
-        modal.classList.add('show');
-    }, 10);
-}
-
-function closeHowItWorks() {
-    const modal = document.getElementById('howItWorksModal');
-    modal.classList.remove('show');
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 300);
-}
-
-// Global functions for onclick
-window.showHowItWorks = showHowItWorks;
-window.closeHowItWorks = closeHowItWorks;
-
-// Fundraising functions
-function updateFundraisingDisplay() {
-    const totalRaisedElement = document.querySelector('.stat-value');
-    const progressFill = document.querySelector('.progress-fill');
-    const progressPercentage = document.querySelector('.progress-percentage');
+// Cüzdan bağlama fonksiyonu - YEREL DOSYA UYUMLU
+async function connectWallet() {
+    console.log('🔍 MetaMask bağlantısı başlatılıyor...');
+    console.log('Sayfa URL:', window.location.href);
+    console.log('Protocol:', window.location.protocol);
     
-    if (totalRaisedElement) {
-        totalRaisedElement.textContent = `$${totalRaised.toLocaleString()}`;
+    // Yerel dosya kontrolü
+    if (window.location.protocol === 'file:') {
+        alert('⚠️ Yerel Dosya Uyarısı!\n\nMetaMask yerel dosyalarda (file://) çalışmaz.\n\nÇözümler:\n1. Live Server kullanın (VS Code)\n2. XAMPP/WAMP kullanın\n3. GitHub Pages\'e yükleyin\n4. Netlify/Vercel kullanın');
+        return;
     }
     
-    if (progressFill && progressPercentage) {
-        const percentage = Math.min((totalRaised / targetAmount) * 100, 100);
-        progressFill.style.width = `${percentage}%`;
-        progressPercentage.textContent = `${Math.round(percentage)}%`;
+    // MetaMask kontrolü
+    if (!window.ethereum) {
+        alert('MetaMask bulunamadı! Lütfen MetaMask eklentisini yükleyin.');
+        window.open('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn', '_blank');
+        return;
     }
-}
 
-// Function to update total raised amount (you can call this manually)
-function updateTotalRaised(newAmount) {
-    totalRaised = newAmount;
-    updateFundraisingDisplay();
-}
-
-// Global function for manual updates
-window.updateTotalRaised = updateTotalRaised;
-
-// Copy address function
-function copyAddress(address, buttonElement) {
-    navigator.clipboard.writeText(address).then(function() {
-        // Show success feedback
-        const copyBtn = buttonElement || event.target;
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = 'Copied';
-        copyBtn.style.background = 'rgba(76, 175, 80, 0.3)';
-        copyBtn.style.borderColor = 'rgba(76, 175, 80, 0.5)';
-        copyBtn.style.color = '#4CAF50';
+    try {
+        console.log('✅ MetaMask bulundu, hesap istekleri başlatılıyor...');
         
-        setTimeout(function() {
-            copyBtn.textContent = originalText;
-            copyBtn.style.background = 'rgba(255, 255, 255, 0.1)';
-            copyBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-            copyBtn.style.color = '#ffffff';
-        }, 2000);
-    }).catch(function(err) {
-        console.error('Could not copy text: ', err);
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = address;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
+        // MetaMask popup'ını aç
+        const accounts = await window.ethereum.request({ 
+            method: 'eth_requestAccounts' 
+        });
         
-        // Show feedback even with fallback
-        const copyBtn = buttonElement || event.target;
-        const originalText = copyBtn.textContent;
-        copyBtn.textContent = 'Copied';
-        copyBtn.style.background = 'rgba(76, 175, 80, 0.3)';
-        copyBtn.style.borderColor = 'rgba(76, 175, 80, 0.5)';
-        copyBtn.style.color = '#4CAF50';
-        
-        setTimeout(function() {
-            copyBtn.textContent = originalText;
-            copyBtn.style.background = 'rgba(255, 255, 255, 0.1)';
-            copyBtn.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-            copyBtn.style.color = '#ffffff';
-        }, 2000);
-    });
-}
-
-// Global function for copy
-window.copyAddress = copyAddress;
-
-// Close Buy LST Modal function
-function closeBuyLST() {
-    const modal = document.getElementById('buyLSTModal');
-    modal.classList.remove('show');
-    setTimeout(() => {
-        modal.style.display = 'none';
-    }, 300);
-}
-
-// Global function for close
-window.closeBuyLST = closeBuyLST;
-
-
-
-
-
-function getNetworkName(networkId) {
-    switch (networkId) {
-        case 1: return 'Ethereum Mainnet';
-        case 3: return 'Ropsten Testnet';
-        case 4: return 'Rinkeby Testnet';
-        case 5: return 'Goerli Testnet';
-        case 42: return 'Kovan Testnet';
-        case 56: return 'BSC Mainnet';
-        case 97: return 'BSC Testnet';
-        case 137: return 'Polygon Mainnet';
-        case 80001: return 'Polygon Mumbai Testnet';
-        case 8453: return 'Base Mainnet';
-        case 84531: return 'Base Goerli Testnet';
-        default: return `Network ID: ${networkId}`;
-    }
-}
-
-// Simple purchase function (demo)
-function purchaseLST() {
-    const modal = document.getElementById('buyLSTModal');
-    modal.style.display = 'block';
-    // Trigger animation
-    setTimeout(() => {
-        modal.classList.add('show');
-    }, 10);
-}
-
-
-
-// Event listeners (if tokenAmountInput exists)
-if (tokenAmountInput) {
-    tokenAmountInput.addEventListener('input', function() {
-        let tokenAmount = parseFloat(tokenAmountInput.value) || 0;
-        
-        // Check maximum limit
-        if (tokenAmount > 10000) {
-            tokenAmount = 10000;
-            tokenAmountInput.value = 10000;
+        if (!accounts || accounts.length === 0) {
+            throw new Error('Hesap bulunamadı');
         }
-    });
-}
-
-
-
-
-// Initialize countdown with retry mechanism
-function initializeCountdown() {
-    console.log('Initializing countdown...');
-    
-    // Try to start countdown
-    updateCountdown();
-    
-    // If countdown elements are found, start the interval
-    const hoursElement = document.getElementById('hours');
-    const minutesElement = document.getElementById('minutes');
-    const secondsElement = document.getElementById('seconds');
-    
-    if (hoursElement && minutesElement && secondsElement) {
-        console.log('Countdown elements found, starting timer...');
-        setInterval(updateCountdown, 1000);
-    } else {
-        console.log('Countdown elements not found, retrying in 100ms...');
-        setTimeout(initializeCountdown, 100);
+        
+        connectedAccount = accounts[0];
+        console.log('✅ Cüzdan başarıyla bağlandı:', connectedAccount);
+        
+        // Ağ kontrolü - BASE ağına geçiş
+        await switchToBaseNetwork();
+        
+        // UI güncellemeleri
+        document.getElementById('connectBtn').style.display = 'none';
+        document.getElementById('presaleForm').style.display = 'block';
+        
+        // Bağlanan cüzdan bilgisini göster
+        showConnectedWallet(connectedAccount);
+        
+        // Başarı mesajı
+        showSuccessMessage('Cüzdan başarıyla bağlandı!');
+        
+    } catch (error) {
+        console.error('❌ Cüzdan bağlanırken hata:', error);
+        
+        let errorMessage = 'Cüzdan bağlanırken bir hata oluştu.';
+        
+        if (error.code === 4001) {
+            errorMessage = 'Cüzdan bağlantısı kullanıcı tarafından reddedildi.';
+        } else if (error.code === -32002) {
+            errorMessage = 'Zaten bir bağlantı isteği bekliyor. Lütfen MetaMask\'ı kontrol edin.';
+        } else if (error.message.includes('User rejected')) {
+            errorMessage = 'Cüzdan bağlantısı reddedildi.';
+        }
+        
+        showErrorMessage(errorMessage);
     }
 }
 
-// Initialize
+// Başarı mesajı göster
+function showSuccessMessage(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification success';
+    notification.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Hata mesajı göster
+function showErrorMessage(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification error';
+    notification.innerHTML = `
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Bağlanan cüzdan bilgisini göster
+function showConnectedWallet(address) {
+    const shortAddress = address.slice(0, 6) + '...' + address.slice(-4);
+    
+    // Cüzdan bilgisi için bir div oluştur
+    const walletInfo = document.createElement('div');
+    walletInfo.className = 'wallet-info';
+    walletInfo.innerHTML = `
+        <div class="wallet-status">
+            <i class="fas fa-check-circle"></i>
+            <span>Bağlandı: ${shortAddress}</span>
+            <button onclick="disconnectWallet()" class="disconnect-btn">Çıkış</button>
+        </div>
+    `;
+    
+    // Presale formundan önce ekle
+    const presaleForm = document.getElementById('presaleForm');
+    presaleForm.parentNode.insertBefore(walletInfo, presaleForm);
+}
+
+// Cüzdan bağlantısını kes
+function disconnectWallet() {
+    connectedAccount = null;
+    
+    // Wallet info'yu kaldır
+    const walletInfo = document.querySelector('.wallet-info');
+    if (walletInfo) {
+        walletInfo.remove();
+    }
+    
+    // Connect butonunu göster, presale formunu gizle
+    document.getElementById('connectBtn').style.display = 'block';
+    document.getElementById('presaleForm').style.display = 'none';
+    
+    // Formu temizle
+    document.getElementById('lstAmount').value = '';
+    document.getElementById('ethAmount').textContent = '0.000000 ETH';
+    document.getElementById('buyBtn').disabled = true;
+}
+
+// Cüzdan durumunu güncelle
+function updateWalletStatus(address) {
+    const button = document.querySelector('.connect-wallet-btn');
+    const shortAddress = address.slice(0, 6) + '...' + address.slice(-4);
+    
+    button.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        ${shortAddress}
+    `;
+    button.style.background = '#4CAF50';
+    button.onclick = disconnectWallet;
+}
+
+// Cüzdan bağlantısını kes
+function disconnectWallet() {
+    const button = document.querySelector('.connect-wallet-btn');
+    button.innerHTML = `
+        <i class="fas fa-wallet"></i>
+        Connect Wallet
+    `;
+    button.style.background = '#4a90e2';
+    button.onclick = connectWallet;
+}
+
+// Navigasyon menü etkileşimi
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM Content Loaded, initializing...');
-    initializeCountdown();
+    const navItems = document.querySelectorAll('.nav-item');
     
-    // Add some interactive effects (if tokenAmountInput exists)
-    if (tokenAmountInput) {
-        tokenAmountInput.addEventListener('focus', function() {
-            this.parentElement.style.transform = 'scale(1.02)';
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Aktif sınıfı kaldır
+            navItems.forEach(nav => nav.classList.remove('active'));
+            // Tıklanan öğeye aktif sınıfı ekle
+            this.classList.add('active');
         });
-        
-        tokenAmountInput.addEventListener('blur', function() {
-            this.parentElement.style.transform = 'scale(1)';
-        });
-    }
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
-        const modal = document.getElementById('howItWorksModal');
-        if (event.target === modal) {
-            closeHowItWorks();
-        }
     });
-    
-    // Initialize fundraising display
-    updateFundraisingDisplay();
 });
 
-// Add some visual feedback for the countdown
-function addCountdownEffects() {
-    const countdownElement = document.getElementById('countdown');
-    if (!countdownElement) return;
+// İlerleme çubuğu animasyonu
+function animateProgressBar() {
+    const progressFill = document.querySelector('.progress-fill');
+    const targetWidth = 59.25; // Hedef yüzde
     
-    // Add a subtle glow effect when time is running low
-    const now = new Date().getTime();
-    const countdownEndDate = UNIVERSAL_COUNTDOWN_START_TIME + COUNTDOWN_DURATION;
-    const distance = countdownEndDate - now;
-    const minutesLeft = Math.floor(distance / (1000 * 60));
+    let currentWidth = 0;
+    const increment = targetWidth / 100;
     
-    if (minutesLeft <= 1) {
-        countdownElement.style.boxShadow = '0 0 15px rgba(255, 0, 0, 0.3)';
-    } else if (minutesLeft <= 2) {
-        countdownElement.style.boxShadow = '0 0 10px rgba(255, 255, 0, 0.2)';
+    const interval = setInterval(() => {
+        currentWidth += increment;
+        progressFill.style.width = currentWidth + '%';
+        
+        if (currentWidth >= targetWidth) {
+            clearInterval(interval);
+        }
+    }, 20);
+}
+
+// MetaMask kontrolü ve bekleme
+function waitForMetaMask() {
+    return new Promise((resolve) => {
+        if (window.ethereum) {
+            resolve(window.ethereum);
+            return;
+        }
+        
+        let attempts = 0;
+        const maxAttempts = 10;
+        
+        const checkInterval = setInterval(() => {
+            attempts++;
+            
+            if (window.ethereum) {
+                clearInterval(checkInterval);
+                resolve(window.ethereum);
+            } else if (attempts >= maxAttempts) {
+                clearInterval(checkInterval);
+                resolve(null);
+            }
+        }, 500);
+    });
+}
+
+// Sayfa yüklendiğinde çalışacak fonksiyonlar
+window.addEventListener('load', async function() {
+    // Geri sayımı başlat
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    
+    // İlerleme çubuğu animasyonunu başlat
+    setTimeout(animateProgressBar, 1000);
+    
+    // MetaMask kontrolü - bekle
+    const ethereum = await waitForMetaMask();
+    if (ethereum) {
+        console.log('✅ MetaMask yüklü ve hazır!');
+        console.log('MetaMask provider:', ethereum);
+        setupMetaMaskListeners();
     } else {
-        countdownElement.style.boxShadow = '0 0 5px rgba(255, 255, 255, 0.1)';
+        console.log('❌ MetaMask bulunamadı');
+    }
+    
+    // LST input event listener
+    const lstInput = document.getElementById('lstAmount');
+    if (lstInput) {
+        lstInput.addEventListener('input', updateETHAmount);
+    }
+});
+
+// MetaMask dinleyicilerini kur
+function setupMetaMaskListeners() {
+    if (window.ethereum) {
+        // Hesap değişikliği dinleyicisi
+        window.ethereum.on('accountsChanged', function(accounts) {
+            if (accounts.length === 0) {
+                // Kullanıcı cüzdanı kapatmış
+                disconnectWallet();
+            } else if (connectedAccount && accounts[0] !== connectedAccount) {
+                // Farklı hesaba geçmiş
+                connectedAccount = accounts[0];
+                const walletInfo = document.querySelector('.wallet-info');
+                if (walletInfo) {
+                    const shortAddress = accounts[0].slice(0, 6) + '...' + accounts[0].slice(-4);
+                    walletInfo.querySelector('span').textContent = `Bağlandı: ${shortAddress}`;
+                }
+            }
+        });
+        
+        // Ağ değişikliği dinleyicisi
+        window.ethereum.on('chainChanged', function(chainId) {
+            console.log('Ağ değişti:', chainId);
+            if (connectedAccount) {
+                // BASE ağı kontrolü
+                if (chainId !== '0x2105') {
+                    alert('Lütfen BASE ağına geçin!');
+                }
+            }
+        });
+        
+        console.log('✅ MetaMask dinleyicileri kuruldu');
     }
 }
 
-// Call effects function periodically
-setInterval(addCountdownEffects, 5000);
+// Sosyal medya linklerini aç
+document.addEventListener('DOMContentLoaded', function() {
+    const socialLinks = document.querySelectorAll('.social-link');
+    
+    socialLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const platform = this.querySelector('i').className;
+            
+            // Platforma göre URL'leri ayarla
+            let url = '#';
+            if (platform.includes('telegram')) {
+                url = 'https://t.me/LSTcoins';
+            } else if (platform.includes('twitter')) {
+                url = 'https://x.com/LSTcoins';
+            } else if (platform.includes('discord')) {
+                url = '#';
+            } else if (platform.includes('book')) {
+                url = 'https://docs.lstcoins.org';
+            }
+            
+            window.open(url, '_blank');
+        });
+    });
+});
 
+// LST miktarı değiştiğinde ETH hesaplama
+function updateETHAmount() {
+    const lstInput = document.getElementById('lstAmount');
+    const ethAmount = document.getElementById('ethAmount');
+    const buyBtn = document.getElementById('buyBtn');
+    
+    if (lstInput && ethAmount && buyBtn) {
+        const lstAmount = parseFloat(lstInput.value) || 0;
+        const ethCost = lstAmount * LST_PRICE_ETH;
+        
+        // ETH miktarını güncelle
+        ethAmount.textContent = ethCost.toFixed(6) + ' ETH';
+        
+        // Min alım kontrolü
+        if (lstAmount >= MIN_LST_AMOUNT) {
+            buyBtn.disabled = false;
+            buyBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+    } else {
+            buyBtn.disabled = true;
+            buyBtn.style.background = '#6c757d';
+        }
+    }
+}
+
+// LST satın alma fonksiyonu - GERÇEK İŞLEM
+async function buyLST() {
+    if (!connectedAccount) {
+        showErrorMessage('Lütfen önce cüzdanınızı bağlayın!');
+        return;
+    }
+    
+    const lstAmount = parseFloat(document.getElementById('lstAmount').value);
+    const ethAmount = lstAmount * LST_PRICE_ETH;
+    
+    if (lstAmount < MIN_LST_AMOUNT) {
+        showErrorMessage(`Minimum ${MIN_LST_AMOUNT} LST alabilirsiniz!`);
+        return;
+    }
+    
+    // Onay iste
+    const confirmPurchase = confirm(
+        `LST Satın Alma Onayı\n\n` +
+        `Miktar: ${lstAmount} LST\n` +
+        `Ödeme: ${ethAmount.toFixed(6)} ETH\n` +
+        `Alıcı: ${PRESALE_ADDRESS}\n\n` +
+        `Devam etmek istiyor musunuz?`
+    );
+    
+    if (!confirmPurchase) {
+        return;
+    }
+    
+    try {
+        // BASE ağına geçiş kontrolü
+        await switchToBaseNetwork();
+        
+        // ETH bakiyesi kontrolü
+        const balance = await window.ethereum.request({
+            method: 'eth_getBalance',
+            params: [connectedAccount, 'latest']
+        });
+        
+        const balanceInEth = parseInt(balance, 16) / Math.pow(10, 18);
+        if (balanceInEth < ethAmount) {
+            showErrorMessage(`Yetersiz bakiye! Gerekli: ${ethAmount.toFixed(6)} ETH, Mevcut: ${balanceInEth.toFixed(6)} ETH`);
+            return;
+        }
+        
+        // ETH gönderimi - GERÇEK İŞLEM
+        const transactionParameters = {
+            to: PRESALE_ADDRESS,
+            from: connectedAccount,
+            value: '0x' + (ethAmount * Math.pow(10, 18)).toString(16), // Wei'ye çevir
+            gas: '0x5208', // 21000 gas
+            gasPrice: '0x' + (20 * Math.pow(10, 9)).toString(16), // 20 Gwei
+        };
+        
+        console.log('🚀 İşlem gönderiliyor...', transactionParameters);
+        
+        const txHash = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
+        });
+        
+        console.log('✅ İşlem başarılı! Hash:', txHash);
+        showSuccessMessage(`İşlem başarılı! Hash: ${txHash.slice(0, 10)}...`);
+        
+        // İşlem hash'ini göster
+        const txInfo = document.createElement('div');
+        txInfo.className = 'transaction-info';
+        txInfo.innerHTML = `
+            <div class="tx-success">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <strong>İşlem Başarılı!</strong>
+                    <p>Hash: <a href="https://basescan.org/tx/${txHash}" target="_blank">${txHash.slice(0, 10)}...${txHash.slice(-8)}</a></p>
+                </div>
+            </div>
+        `;
+        
+        const presaleForm = document.getElementById('presaleForm');
+        presaleForm.appendChild(txInfo);
+        
+    } catch (error) {
+        console.error('❌ İşlem hatası:', error);
+        
+        let errorMessage = 'İşlem başarısız!';
+        
+        if (error.code === 4001) {
+            errorMessage = 'İşlem kullanıcı tarafından reddedildi.';
+        } else if (error.code === -32603) {
+            errorMessage = 'İşlem başarısız. Yetersiz bakiye olabilir.';
+        } else if (error.message.includes('insufficient funds')) {
+            errorMessage = 'Yetersiz bakiye!';
+        } else if (error.message.includes('gas')) {
+            errorMessage = 'Gas hatası. Lütfen tekrar deneyin.';
+        }
+        
+        showErrorMessage(errorMessage);
+    }
+}
+
+// BASE ağına geçiş
+async function switchToBaseNetwork() {
+    try {
+        await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x2105' }], // BASE chain ID
+        });
+        console.log('✅ BASE ağına geçildi');
+    } catch (switchError) {
+        console.log('BASE ağı bulunamadı, ekleniyor...');
+        // BASE ağı yoksa ekle
+        if (switchError.code === 4902) {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [{
+                        chainId: '0x2105',
+                        chainName: 'Base',
+                        nativeCurrency: {
+                            name: 'Ethereum',
+                            symbol: 'ETH',
+                            decimals: 18,
+                        },
+                        rpcUrls: ['https://mainnet.base.org'],
+                        blockExplorerUrls: ['https://basescan.org'],
+                    }],
+                });
+                console.log('✅ BASE ağı eklendi');
+            } catch (addError) {
+                console.error('❌ BASE ağı eklenemedi:', addError);
+                throw addError;
+            }
+        } else {
+            throw switchError;
+        }
+    }
+}
+
+// Contract adresi kopyalama
+function copyContractAddress(fullAddress, btn) {
+    try {
+        navigator.clipboard.writeText(fullAddress).then(() => {
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.style.background = '#4CAF50';
+            btn.style.color = '#fff';
+            setTimeout(() => {
+                btn.innerHTML = originalIcon;
+                btn.style.background = '#f0f0f0';
+                btn.style.color = '#333';
+            }, 1500);
+        });
+    } catch (e) {
+        alert('Copy failed');
+    }
+}
