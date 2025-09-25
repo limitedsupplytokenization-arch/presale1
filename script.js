@@ -156,8 +156,8 @@ function showConnectedWallet(address) {
     walletInfo.innerHTML = `
         <div class="wallet-status">
             <i class="fas fa-check-circle"></i>
-            <span>Bağlandı: ${shortAddress}</span>
-            <button onclick="disconnectWallet()" class="disconnect-btn">Çıkış</button>
+            <span>Connected: ${shortAddress}</span>
+            <button onclick="disconnectWallet()" class="disconnect-btn">Logout</button>
         </div>
     `;
     
@@ -184,6 +184,19 @@ function disconnectWallet() {
     document.getElementById('lstAmount').value = '';
     document.getElementById('ethAmount').textContent = '0.000000 ETH';
     document.getElementById('buyBtn').disabled = true;
+    
+    // Orijinal UI'yi geri yükle
+    const interfaceHeader = document.querySelector('.interface-header');
+    const countdownSection = document.querySelector('.countdown-section');
+    const progressSection = document.querySelector('.progress-section');
+    const presaleInterface = document.querySelector('.presale-interface');
+    
+    if (interfaceHeader) interfaceHeader.style.display = 'block';
+    if (countdownSection) countdownSection.style.display = 'block';
+    if (progressSection) progressSection.style.display = 'block';
+    if (presaleInterface) presaleInterface.classList.remove('wallet-connected');
+    
+    showSuccessMessage('Wallet disconnected successfully!');
 }
 
 // Cüzdan durumunu güncelle
@@ -199,31 +212,7 @@ function updateWalletStatus(address) {
     button.onclick = disconnectWallet;
 }
 
-// Cüzdan bağlantısını kes
-function disconnectWallet() {
-    const button = document.querySelector('.connect-wallet-btn');
-    if (button) {
-        button.innerHTML = `
-            Connect Wallet
-            <span class="wallet-subtitle">(MetaMask)</span>
-        `;
-        button.style.background = '#4a90e2';
-        button.onclick = connectWallet;
-        // Connect butonunu tekrar görünür yap
-        const connectBtn = document.getElementById('connectBtn');
-        if (connectBtn) connectBtn.style.display = 'block';
-    }
-    // Satın alma formunu gizle
-    const presaleForm = document.getElementById('presaleForm');
-    if (presaleForm) presaleForm.style.display = 'none';
-    // Üst içerikleri geri göster
-    const interfaceHeader = document.querySelector('.interface-header');
-    const countdownSection = document.querySelector('.countdown-section');
-    const progressSection = document.querySelector('.progress-section');
-    if (interfaceHeader) interfaceHeader.style.display = '';
-    if (countdownSection) countdownSection.style.display = '';
-    if (progressSection) progressSection.style.display = '';
-}
+// Duplicate disconnect function removed - using the main one above
 
 // Navigasyon menü etkileşimi
 document.addEventListener('DOMContentLoaded', function() {
@@ -322,7 +311,7 @@ function setupMetaMaskListeners() {
                 const walletInfo = document.querySelector('.wallet-info');
                 if (walletInfo) {
                     const shortAddress = accounts[0].slice(0, 6) + '...' + accounts[0].slice(-4);
-                    walletInfo.querySelector('span').textContent = `Bağlandı: ${shortAddress}`;
+                    walletInfo.querySelector('span').textContent = `Connected: ${shortAddress}`;
                 }
             }
         });
@@ -381,11 +370,11 @@ function updateETHAmount() {
         // ETH miktarını güncelle
         ethAmount.textContent = ethCost.toFixed(6) + ' ETH';
         
-        // Min alım kontrolü
-        if (lstAmount >= MIN_LST_AMOUNT) {
+        // Min ve max alım kontrolü
+        if (lstAmount >= MIN_LST_AMOUNT && lstAmount <= 9800) {
             buyBtn.disabled = false;
             buyBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
-    } else {
+        } else {
             buyBtn.disabled = true;
             buyBtn.style.background = '#6c757d';
         }
@@ -407,18 +396,12 @@ async function buyLST() {
         return;
     }
     
-    // Onay iste
-    const confirmPurchase = confirm(
-        `LST Purchase Confirmation\n\n` +
-        `Amount: ${lstAmount} LST\n` +
-        `Payment: ${ethAmount.toFixed(6)} ETH\n` +
-        `Recipient: ${PRESALE_ADDRESS}\n\n` +
-        `Do you want to continue?`
-    );
-    
-    if (!confirmPurchase) {
+    if (lstAmount > 9800) {
+        showErrorMessage(`Maximum 9800 LST allowed!`);
         return;
     }
+    
+    // Direkt MetaMask'a geç, onay isteme
     
     try {
         // BASE ağına geçiş kontrolü
