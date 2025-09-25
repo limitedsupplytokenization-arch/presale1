@@ -1,6 +1,8 @@
-// 40 saatlik geri sayım - hemen başlasın
-const PRESALE_DURATION = 40 * 60 * 60 * 1000; // 40 saat (milisaniye)
-const countdownEndDate = new Date().getTime() + PRESALE_DURATION; // Şu andan 40 saat sonra
+// 48 saatlik sabit geri sayım - GitHub'a yüklendiği andan itibaren
+// Başlangıç: 19 Aralık 2024, 12:00 UTC (GitHub'a yüklendiği zaman)
+const PRESALE_START_TIME = new Date('2024-12-19T12:00:00Z').getTime();
+const PRESALE_DURATION = 48 * 60 * 60 * 1000; // 48 saat (milisaniye)
+const countdownEndDate = PRESALE_START_TIME + PRESALE_DURATION;
 
 function updateCountdown() {
     const now = new Date().getTime();
