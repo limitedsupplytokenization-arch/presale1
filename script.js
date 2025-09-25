@@ -1,5 +1,8 @@
-// Geri sayım zamanlayıcısı
-const countdownEndDate = new Date('2025-09-15T11:00:00').getTime();
+// 40 saatlik geri sayım - herkes için aynı
+// Başlangıç zamanı: 19 Aralık 2024, 12:00 UTC
+const PRESALE_START_TIME = new Date('2024-12-19T12:00:00Z').getTime(); // Sabit başlangıç zamanı
+const PRESALE_DURATION = 40 * 60 * 60 * 1000; // 40 saat (milisaniye)
+const countdownEndDate = PRESALE_START_TIME + PRESALE_DURATION;
 
 function updateCountdown() {
     const now = new Date().getTime();
