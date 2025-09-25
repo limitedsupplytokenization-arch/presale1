@@ -234,6 +234,13 @@ body {
     transition: all 0.3s ease;
 }
 
+/* Wallet bağlandığında gizlenecek elementler */
+.presale-interface.wallet-connected .interface-header,
+.presale-interface.wallet-connected .countdown-section,
+.presale-interface.wallet-connected .progress-section {
+    display: none !important;
+}
+
 .interface-header h2 {
     font-size: 24px;
     font-weight: 700;

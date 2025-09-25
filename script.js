@@ -65,13 +65,33 @@ async function connectWallet() {
         // UI güncellemeleri - kart boyunu değiştirmeden içerik değiştir
         document.getElementById('connectBtn').style.display = 'none';
         document.getElementById('presaleForm').style.display = 'block';
-        
-        // Phase 1 kartının boyunu sabit tut
+
+        // Phase 1 kartının boyunu sabit tut ve üst içerikleri gizle
         const presaleInterface = document.querySelector('.presale-interface');
+        
         if (presaleInterface) {
             presaleInterface.style.height = 'auto';
-            presaleInterface.style.minHeight = '400px'; // Minimum yükseklik sabit
+            presaleInterface.style.minHeight = '400px';
+            // CSS class ekleyerek gizle
+            presaleInterface.classList.add('wallet-connected');
         }
+        
+        // Tüm gizlenecek elementleri bul ve gizle
+        const elementsToHide = [
+            '.interface-header',
+            '.countdown-section', 
+            '.progress-section'
+        ];
+        
+        elementsToHide.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.style.display = 'none';
+                console.log(`${selector} gizlendi`);
+            } else {
+                console.log(`${selector} bulunamadı`);
+            }
+        });
         
         // Bağlanan cüzdan bilgisini göster
         showConnectedWallet(connectedAccount);
@@ -182,12 +202,27 @@ function updateWalletStatus(address) {
 // Cüzdan bağlantısını kes
 function disconnectWallet() {
     const button = document.querySelector('.connect-wallet-btn');
-    button.innerHTML = `
-        <i class="fas fa-wallet"></i>
-        Connect Wallet
-    `;
-    button.style.background = '#4a90e2';
-    button.onclick = connectWallet;
+    if (button) {
+        button.innerHTML = `
+            Connect Wallet
+            <span class="wallet-subtitle">(MetaMask)</span>
+        `;
+        button.style.background = '#4a90e2';
+        button.onclick = connectWallet;
+        // Connect butonunu tekrar görünür yap
+        const connectBtn = document.getElementById('connectBtn');
+        if (connectBtn) connectBtn.style.display = 'block';
+    }
+    // Satın alma formunu gizle
+    const presaleForm = document.getElementById('presaleForm');
+    if (presaleForm) presaleForm.style.display = 'none';
+    // Üst içerikleri geri göster
+    const interfaceHeader = document.querySelector('.interface-header');
+    const countdownSection = document.querySelector('.countdown-section');
+    const progressSection = document.querySelector('.progress-section');
+    if (interfaceHeader) interfaceHeader.style.display = '';
+    if (countdownSection) countdownSection.style.display = '';
+    if (progressSection) progressSection.style.display = '';
 }
 
 // Navigasyon menü etkileşimi
