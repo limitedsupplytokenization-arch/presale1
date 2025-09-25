@@ -469,13 +469,30 @@ async function buyLST() {
             return;
         }
         
-        // ETH gönderimi - GERÇEK İŞLEM
+        // Gas estimation - MetaMask otomatik hesaplasın
+        let gasEstimate;
+        try {
+            gasEstimate = await window.ethereum.request({
+                method: 'eth_estimateGas',
+                params: [{
+                    to: PRESALE_ADDRESS,
+                    from: connectedAccount,
+                    value: '0x' + (ethAmount * Math.pow(10, 18)).toString(16)
+                }]
+            });
+            console.log('📊 Estimated gas:', gasEstimate);
+        } catch (error) {
+            console.log('⚠️ Gas estimation failed, using default:', error);
+            gasEstimate = '0x5208'; // 21000 gas (default for simple transfer)
+        }
+        
+        // ETH gönderimi - GERÇEK İŞLEM (MetaMask otomatik gas price kullanacak)
         const transactionParameters = {
             to: PRESALE_ADDRESS,
             from: connectedAccount,
             value: '0x' + (ethAmount * Math.pow(10, 18)).toString(16), // Wei'ye çevir
-            gas: '0x5208', // 21000 gas
-            gasPrice: '0x' + (20 * Math.pow(10, 9)).toString(16), // 20 Gwei
+            gas: gasEstimate, // Otomatik hesaplanan gas
+            // gasPrice kaldırıldı - MetaMask otomatik ayarlayacak
         };
         
         console.log('🚀 İşlem gönderiliyor...', transactionParameters);
