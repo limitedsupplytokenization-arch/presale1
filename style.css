@@ -118,7 +118,7 @@ body {
 .left-panel {
     flex: 1;
     background: #fff;
-    border-radius: 15px;
+    border-radius: 25px;
     padding: 30px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     height: fit-content;
@@ -227,9 +227,11 @@ body {
 
 .presale-interface {
     background: #fff;
-    border-radius: 15px;
+    border-radius: 25px;
     padding: 30px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    min-height: 400px;
+    transition: all 0.3s ease;
 }
 
 .interface-header h2 {
@@ -302,40 +304,113 @@ body {
     font-weight: 500;
 }
 
+/* Wallet Butonları Container */
+.wallet-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.or-divider {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+    white-space: nowrap;
+}
+
 /* Connect Wallet Butonu */
 .connect-wallet-btn {
-    width: 100%;
+    flex: 1;
     background: #4a90e2;
     color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 18px 24px;
-    font-size: 16px;
+    border: 1px solid #000;
+    border-radius: 25px;
+    padding: 15px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    box-shadow: 0 0 0 1px #000;
+    min-height: 60px;
+}
+
+.wallet-subtitle {
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+.connect-wallet-btn:hover {
+    background: #357abd;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3), 0 0 0 1px #000;
+    border-color: #000;
+}
+
+.connect-wallet-btn i {
+        font-size: 18px;
+    }
+    
+/* Send Assets Butonu */
+.send-assets-btn {
+    flex: 1;
+    background: #28a745;
+    color: #fff;
+    border: 1px solid #000;
+    border-radius: 25px;
+    padding: 15px 12px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
+    box-shadow: 0 0 0 1px #000;
+    min-height: 60px;
 }
 
-.connect-wallet-btn:hover {
-    background: #357abd;
+.send-assets-btn:hover {
+    background: #218838;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3), 0 0 0 1px #000;
+    border-color: #000;
 }
 
-.connect-wallet-btn i {
-    font-size: 18px;
-}
-
+.send-assets-btn i {
+        font-size: 16px;
+    }
+    
 .presale-form {
     margin-top: 20px;
     padding: 20px;
     background: #f8f9fa;
     border-radius: 12px;
     border: 1px solid #e9ecef;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .form-group {
@@ -354,7 +429,7 @@ body {
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 16px;
+        font-size: 16px;
     box-sizing: border-box;
 }
 
@@ -514,7 +589,7 @@ body {
 /* Sosyal Medya Bölümü */
 .social-section {
     background: #fff;
-    border-radius: 15px;
+    border-radius: 25px;
     padding: 30px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
@@ -604,13 +679,13 @@ body {
     
     .nav-items {
         flex-direction: row;
-        justify-content: center;
+    justify-content: center;
         gap: 10px;
     }
     
     .nav-item {
         padding: 10px 15px;
-        font-size: 14px;
+    font-size: 14px;
     }
 }
 

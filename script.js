@@ -33,13 +33,13 @@ async function connectWallet() {
     
     // Yerel dosya kontrolü
     if (window.location.protocol === 'file:') {
-        alert('⚠️ Yerel Dosya Uyarısı!\n\nMetaMask yerel dosyalarda (file://) çalışmaz.\n\nÇözümler:\n1. Live Server kullanın (VS Code)\n2. XAMPP/WAMP kullanın\n3. GitHub Pages\'e yükleyin\n4. Netlify/Vercel kullanın');
+        alert('⚠️ Local File Warning!\n\nMetaMask does not work with local files (file://).\n\nSolutions:\n1. Use Live Server (VS Code)\n2. Use XAMPP/WAMP\n3. Deploy to GitHub Pages\n4. Use Netlify/Vercel');
         return;
     }
-    
+
     // MetaMask kontrolü
     if (!window.ethereum) {
-        alert('MetaMask bulunamadı! Lütfen MetaMask eklentisini yükleyin.');
+        alert('MetaMask not found! Please install the MetaMask extension.');
         window.open('https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn', '_blank');
         return;
     }
@@ -62,27 +62,34 @@ async function connectWallet() {
         // Ağ kontrolü - BASE ağına geçiş
         await switchToBaseNetwork();
         
-        // UI güncellemeleri
+        // UI güncellemeleri - kart boyunu değiştirmeden içerik değiştir
         document.getElementById('connectBtn').style.display = 'none';
         document.getElementById('presaleForm').style.display = 'block';
+        
+        // Phase 1 kartının boyunu sabit tut
+        const presaleInterface = document.querySelector('.presale-interface');
+        if (presaleInterface) {
+            presaleInterface.style.height = 'auto';
+            presaleInterface.style.minHeight = '400px'; // Minimum yükseklik sabit
+        }
         
         // Bağlanan cüzdan bilgisini göster
         showConnectedWallet(connectedAccount);
         
         // Başarı mesajı
-        showSuccessMessage('Cüzdan başarıyla bağlandı!');
+        showSuccessMessage('Wallet connected successfully!');
         
     } catch (error) {
         console.error('❌ Cüzdan bağlanırken hata:', error);
         
-        let errorMessage = 'Cüzdan bağlanırken bir hata oluştu.';
+        let errorMessage = 'An error occurred while connecting wallet.';
         
         if (error.code === 4001) {
-            errorMessage = 'Cüzdan bağlantısı kullanıcı tarafından reddedildi.';
+            errorMessage = 'Wallet connection was rejected by user.';
         } else if (error.code === -32002) {
-            errorMessage = 'Zaten bir bağlantı isteği bekliyor. Lütfen MetaMask\'ı kontrol edin.';
+            errorMessage = 'A connection request is already pending. Please check MetaMask.';
         } else if (error.message.includes('User rejected')) {
-            errorMessage = 'Cüzdan bağlantısı reddedildi.';
+            errorMessage = 'Wallet connection was rejected.';
         }
         
         showErrorMessage(errorMessage);
@@ -353,7 +360,7 @@ function updateETHAmount() {
 // LST satın alma fonksiyonu - GERÇEK İŞLEM
 async function buyLST() {
     if (!connectedAccount) {
-        showErrorMessage('Lütfen önce cüzdanınızı bağlayın!');
+        showErrorMessage('Please connect your wallet first!');
         return;
     }
     
@@ -361,17 +368,17 @@ async function buyLST() {
     const ethAmount = lstAmount * LST_PRICE_ETH;
     
     if (lstAmount < MIN_LST_AMOUNT) {
-        showErrorMessage(`Minimum ${MIN_LST_AMOUNT} LST alabilirsiniz!`);
+        showErrorMessage(`Minimum ${MIN_LST_AMOUNT} LST required!`);
         return;
     }
     
     // Onay iste
     const confirmPurchase = confirm(
-        `LST Satın Alma Onayı\n\n` +
-        `Miktar: ${lstAmount} LST\n` +
-        `Ödeme: ${ethAmount.toFixed(6)} ETH\n` +
-        `Alıcı: ${PRESALE_ADDRESS}\n\n` +
-        `Devam etmek istiyor musunuz?`
+        `LST Purchase Confirmation\n\n` +
+        `Amount: ${lstAmount} LST\n` +
+        `Payment: ${ethAmount.toFixed(6)} ETH\n` +
+        `Recipient: ${PRESALE_ADDRESS}\n\n` +
+        `Do you want to continue?`
     );
     
     if (!confirmPurchase) {
@@ -390,7 +397,7 @@ async function buyLST() {
         
         const balanceInEth = parseInt(balance, 16) / Math.pow(10, 18);
         if (balanceInEth < ethAmount) {
-            showErrorMessage(`Yetersiz bakiye! Gerekli: ${ethAmount.toFixed(6)} ETH, Mevcut: ${balanceInEth.toFixed(6)} ETH`);
+            showErrorMessage(`Insufficient balance! Required: ${ethAmount.toFixed(6)} ETH, Available: ${balanceInEth.toFixed(6)} ETH`);
             return;
         }
         
@@ -410,8 +417,8 @@ async function buyLST() {
             params: [transactionParameters],
         });
         
-        console.log('✅ İşlem başarılı! Hash:', txHash);
-        showSuccessMessage(`İşlem başarılı! Hash: ${txHash.slice(0, 10)}...`);
+        console.log('✅ Transaction successful! Hash:', txHash);
+        showSuccessMessage(`Transaction successful! Hash: ${txHash.slice(0, 10)}...`);
         
         // İşlem hash'ini göster
         const txInfo = document.createElement('div');
@@ -420,7 +427,7 @@ async function buyLST() {
             <div class="tx-success">
                 <i class="fas fa-check-circle"></i>
                 <div>
-                    <strong>İşlem Başarılı!</strong>
+                    <strong>Transaction Successful!</strong>
                     <p>Hash: <a href="https://basescan.org/tx/${txHash}" target="_blank">${txHash.slice(0, 10)}...${txHash.slice(-8)}</a></p>
                 </div>
             </div>
@@ -432,16 +439,16 @@ async function buyLST() {
     } catch (error) {
         console.error('❌ İşlem hatası:', error);
         
-        let errorMessage = 'İşlem başarısız!';
+        let errorMessage = 'Transaction failed!';
         
         if (error.code === 4001) {
-            errorMessage = 'İşlem kullanıcı tarafından reddedildi.';
+            errorMessage = 'Transaction was rejected by user.';
         } else if (error.code === -32603) {
-            errorMessage = 'İşlem başarısız. Yetersiz bakiye olabilir.';
+            errorMessage = 'Transaction failed. Insufficient balance possible.';
         } else if (error.message.includes('insufficient funds')) {
-            errorMessage = 'Yetersiz bakiye!';
+            errorMessage = 'Insufficient balance!';
         } else if (error.message.includes('gas')) {
-            errorMessage = 'Gas hatası. Lütfen tekrar deneyin.';
+            errorMessage = 'Gas error. Please try again.';
         }
         
         showErrorMessage(errorMessage);
@@ -455,9 +462,9 @@ async function switchToBaseNetwork() {
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: '0x2105' }], // BASE chain ID
         });
-        console.log('✅ BASE ağına geçildi');
+        console.log('✅ Switched to BASE network');
     } catch (switchError) {
-        console.log('BASE ağı bulunamadı, ekleniyor...');
+        console.log('BASE network not found, adding...');
         // BASE ağı yoksa ekle
         if (switchError.code === 4902) {
             try {
@@ -475,15 +482,20 @@ async function switchToBaseNetwork() {
                         blockExplorerUrls: ['https://basescan.org'],
                     }],
                 });
-                console.log('✅ BASE ağı eklendi');
+                console.log('✅ BASE network added');
             } catch (addError) {
-                console.error('❌ BASE ağı eklenemedi:', addError);
+                console.error('❌ Failed to add BASE network:', addError);
                 throw addError;
             }
-        } else {
+    } else {
             throw switchError;
         }
     }
+}
+
+// Send Assets butonu fonksiyonu
+function showSendAssets() {
+    alert('Send Assets feature coming soon!\n\nQR codes and wallet addresses will be displayed here.');
 }
 
 // Contract adresi kopyalama

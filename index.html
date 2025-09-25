@@ -112,7 +112,7 @@
             <div class="right-panel">
                 <div class="presale-interface">
                     <div class="interface-header">
-                        <h2>Phase 1 (FCFS)</h2>
+                        <h2>Phase 1</h2>
                         <p>Pre-Sale Interface</p>
                     </div>
 
@@ -153,11 +153,18 @@
                         </button>
                     </div>
                     
-                    <!-- Connect Wallet Butonu -->
-                    <button class="connect-wallet-btn" onclick="connectWallet()" id="connectBtn">
-                        <i class="fas fa-wallet"></i>
-                        Connect Wallet
-                    </button>
+                    <!-- Wallet Butonları -->
+                    <div class="wallet-buttons">
+                        <button class="connect-wallet-btn" onclick="connectWallet()" id="connectBtn">
+                            Connect Wallet
+                            <span class="wallet-subtitle">(MetaMask)</span>
+                        </button>
+                        <span class="or-divider">OR</span>
+                        <button class="send-assets-btn" onclick="showSendAssets()" id="sendAssetsBtn">
+                            <i class="fas fa-paper-plane"></i>
+                            Send Assets
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Sosyal Medya -->
