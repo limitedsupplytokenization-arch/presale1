@@ -1,8 +1,11 @@
-// 48 saatlik sabit geri sayım - herkes için aynı
-// Başlangıç: 26 Eylül 2025, 00:20 UTC (sabit zaman)
-const PRESALE_START_TIME = new Date('2025-09-26T00:20:00Z').getTime();
+// TEST: 48 saatlik geri sayım - şu andan itibaren
 const PRESALE_DURATION = 48 * 60 * 60 * 1000; // 48 saat (milisaniye)
-const countdownEndDate = PRESALE_START_TIME + PRESALE_DURATION;
+const countdownEndDate = new Date().getTime() + PRESALE_DURATION; // Şu andan 48 saat sonra
+
+// Debug için console'a yazdır
+console.log('Şu anki zaman:', new Date().toLocaleString());
+console.log('Bitiş zamanı:', new Date(countdownEndDate).toLocaleString());
+console.log('Kalan süre (saat):', (countdownEndDate - new Date().getTime()) / (1000 * 60 * 60));
 
 function updateCountdown() {
     const now = new Date().getTime();
