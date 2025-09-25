@@ -1,7 +1,7 @@
-// 48 saatlik sabit geri sayım - GitHub'a yüklendiği andan itibaren
+// 28 saatlik sabit geri sayım - GitHub'a yüklendiği andan itibaren
 // Başlangıç: 25 Eylül 2025, 18:01 UTC (Türkiye saati 21:01 için UTC-3)
 const PRESALE_START_TIME = new Date('2025-09-25T18:01:00Z').getTime();
-const PRESALE_DURATION = 48 * 60 * 60 * 1000; // 48 saat (milisaniye)
+const PRESALE_DURATION = 28 * 60 * 60 * 1000; // 28 saat (milisaniye)
 const countdownEndDate = PRESALE_START_TIME + PRESALE_DURATION;
 
 function updateCountdown() {
