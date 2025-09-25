@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // İlerleme çubuğu animasyonu
 function animateProgressBar() {
     const progressFill = document.querySelector('.progress-fill');
-    const targetWidth = 59.25; // Hedef yüzde
+    const targetWidth = 0; // Hedef yüzde - başlangıçta 0%
     
     let currentWidth = 0;
     const increment = targetWidth / 100;
