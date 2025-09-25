@@ -44,6 +44,14 @@ async function connectWallet() {
         return;
     }
 
+    // Eğer zaten bağlı bir hesap varsa, kullanıcıyı uyar
+    if (connectedAccount) {
+        const switchAccount = confirm('You are already connected to a wallet. Do you want to switch to a different account?');
+        if (!switchAccount) {
+            return;
+        }
+    }
+
     try {
         console.log('✅ MetaMask bulundu, hesap istekleri başlatılıyor...');
         
@@ -157,7 +165,10 @@ function showConnectedWallet(address) {
         <div class="wallet-status">
             <i class="fas fa-check-circle"></i>
             <span>Connected: ${shortAddress}</span>
-            <button onclick="disconnectWallet()" class="disconnect-btn">Logout</button>
+            <div class="wallet-actions">
+                <button onclick="disconnectWallet()" class="disconnect-btn">Logout</button>
+                <button onclick="switchWallet()" class="switch-btn">Switch Wallet</button>
+            </div>
         </div>
     `;
     
@@ -196,7 +207,46 @@ function disconnectWallet() {
     if (progressSection) progressSection.style.display = 'block';
     if (presaleInterface) presaleInterface.classList.remove('wallet-connected');
     
-    showSuccessMessage('Wallet disconnected successfully!');
+    // MetaMask'tan tamamen çıkış yap
+    if (window.ethereum) {
+        // MetaMask'tan çıkış yapmak için kullanıcıyı yönlendir
+        try {
+            // MetaMask'ın disconnect metodunu dene (eğer varsa)
+            if (window.ethereum.disconnect) {
+                window.ethereum.disconnect();
+            }
+            // Alternatif: MetaMask'ı sıfırla
+            if (window.ethereum._metamask) {
+                window.ethereum._metamask.isUnlocked = false;
+            }
+        } catch (error) {
+            console.log('MetaMask disconnect not available:', error);
+        }
+    }
+    
+    showSuccessMessage('Wallet disconnected successfully! Please refresh the page to completely disconnect from MetaMask.');
+}
+
+// Cüzdan değiştir
+function switchWallet() {
+    if (window.ethereum) {
+        // MetaMask'ta hesap değiştirme isteği
+        try {
+            window.ethereum.request({
+                method: 'wallet_requestPermissions',
+                params: [{ eth_accounts: {} }]
+            }).then(() => {
+                // Hesap değişti, sayfayı yenile
+                window.location.reload();
+            }).catch((error) => {
+                console.log('Hesap değiştirme iptal edildi:', error);
+            });
+        } catch (error) {
+            console.log('Hesap değiştirme hatası:', error);
+            // Alternatif: Kullanıcıyı MetaMask'a yönlendir
+            alert('Please switch accounts in MetaMask and refresh the page.');
+        }
+    }
 }
 
 // Cüzdan durumunu güncelle

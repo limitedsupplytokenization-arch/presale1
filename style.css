@@ -372,7 +372,7 @@ body {
 /* Send Assets Butonu */
 .send-assets-btn {
     flex: 1;
-    background: #28a745;
+    background: #4a90e2;
     color: #fff;
     border: 1px solid #000;
     border-radius: 25px;
@@ -390,9 +390,9 @@ body {
 }
 
 .send-assets-btn:hover {
-    background: #218838;
+    background: #357abd;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3), 0 0 0 1px #000;
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3), 0 0 0 1px #000;
     border-color: #000;
 }
 
@@ -502,13 +502,18 @@ body {
     font-weight: 500;
 }
 
+.wallet-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
 .wallet-status i {
     color: #4CAF50;
     font-size: 16px;
 }
 
 .disconnect-btn {
-    margin-left: auto;
     padding: 5px 10px;
     background: #f44336;
     color: white;
@@ -521,6 +526,21 @@ body {
 
 .disconnect-btn:hover {
     background: #d32f2f;
+}
+
+.switch-btn {
+    padding: 5px 10px;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.switch-btn:hover {
+    background: #357abd;
 }
 
 /* Bildirimler */
