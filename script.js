@@ -174,7 +174,7 @@ function renderDiscountNotice() {
     // Farklı indirim oranları için farklı mesajlar
     let discountMessage;
     if (currentDiscountRate === 0.1) {
-        discountMessage = `You are eligible for a ${discountPercent}% discount for joining Testnet V1!`;
+        discountMessage = `You can get a 10% discount for joining Testnet V1!`;
     } else {
         discountMessage = `You are eligible for a ${discountPercent}% discount for holding a Genesis NFT!`;
     }
