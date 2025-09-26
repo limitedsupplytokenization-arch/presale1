@@ -229,6 +229,7 @@ async function connectWallet() {
 
     // Eğer zaten bağlı bir hesap varsa, kullanıcıyı uyar
     if (connectedAccount) {
+        console.log('⚠️ Zaten bağlı hesap var:', connectedAccount);
         const switchAccount = confirm('You are already connected to a wallet. Do you want to switch to a different account?');
         if (!switchAccount) {
             return;
@@ -380,8 +381,10 @@ function showConnectedWallet(address) {
 
 // Cüzdan bağlantısını kes
 async function disconnectWallet() {
+    console.log('🔌 Disconnect başlatılıyor, mevcut hesap:', connectedAccount);
     connectedAccount = null;
     currentDiscountRate = 0;
+    console.log('🔌 Disconnect tamamlandı, yeni hesap:', connectedAccount);
     
     // Wallet info'yu kaldır
     const walletInfo = document.querySelector('.wallet-info');
