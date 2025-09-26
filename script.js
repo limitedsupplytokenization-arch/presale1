@@ -732,6 +732,11 @@ function showSendAssets() {
         alert('Send Assets modal not found.');
         return;
     }
+    // Lock background scroll on mobile while modal is open
+    const previousOverflow = document.body.style.overflow;
+    modal.dataset.prevOverflow = previousOverflow || '';
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     modal.style.display = 'block';
     setTimeout(() => modal.classList.add('show'), 10);
 }
@@ -740,7 +745,12 @@ function closeSendAssets() {
     const modal = document.getElementById('sendAssetsModal');
     if (!modal) return;
     modal.classList.remove('show');
-    setTimeout(() => { modal.style.display = 'none'; }, 300);
+    setTimeout(() => { 
+        modal.style.display = 'none'; 
+        // Restore background scroll
+        document.body.style.overflow = modal.dataset.prevOverflow || '';
+        document.documentElement.style.overflow = modal.dataset.prevOverflow || '';
+    }, 300);
 }
 
 function copyAddress(text, btn) {
