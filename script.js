@@ -230,10 +230,7 @@ async function connectWallet() {
     // Eğer zaten bağlı bir hesap varsa, kullanıcıyı uyar
     if (connectedAccount) {
         console.log('⚠️ Zaten bağlı hesap var:', connectedAccount);
-        const switchAccount = confirm('You are already connected to a wallet. Do you want to switch to a different account?');
-        if (!switchAccount) {
-            return;
-        }
+        // Uyarı kaldırıldı - doğrudan devam et
     }
 
     try {
