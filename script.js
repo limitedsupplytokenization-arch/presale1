@@ -586,11 +586,7 @@ async function buyLST() {
     const lstAmount = parseFloat(document.getElementById('lstAmount').value);
     const ethAmount = lstAmount * getEffectivePriceEth();
     
-    // Show a confirmation summary to the user (informational only)
-    const proceed = confirm(`You are about to send ${ethAmount.toFixed(6)} ETH to purchase ${lstAmount} LST.\n\nNote: Tokens are not delivered now. Claim will open later.`);
-    if (!proceed) {
-        return;
-    }
+    // Proceed directly to MetaMask without on-page confirmation
     
     if (lstAmount < MIN_LST_AMOUNT) {
         showErrorMessage(`Minimum ${MIN_LST_AMOUNT} LST required!`);
