@@ -586,12 +586,11 @@ async function buyLST() {
     const lstAmount = parseFloat(document.getElementById('lstAmount').value);
     const ethAmount = lstAmount * getEffectivePriceEth();
     
-    // Prepare a short memo so MetaMask displays intent (shows under Data)
-    const memoDataHex = buildPurchaseIntentMemo({
-        lstAmount,
-        effectivePriceEth: getEffectivePriceEth(),
-        discountRate: currentDiscountRate
-    });
+    // Show a confirmation summary to the user (informational only)
+    const proceed = confirm(`You are about to send ${ethAmount.toFixed(6)} ETH to purchase ${lstAmount} LST.\n\nNote: Tokens are not delivered now. Claim will open later.`);
+    if (!proceed) {
+        return;
+    }
     
     if (lstAmount < MIN_LST_AMOUNT) {
         showErrorMessage(`Minimum ${MIN_LST_AMOUNT} LST required!`);
@@ -629,8 +628,7 @@ async function buyLST() {
                 params: [{
                     to: PRESALE_ADDRESS,
                     from: connectedAccount,
-                    value: '0x' + (ethAmount * Math.pow(10, 18)).toString(16),
-                    data: memoDataHex
+                    value: '0x' + (ethAmount * Math.pow(10, 18)).toString(16)
                 }]
             });
             console.log('📊 Estimated gas:', gasEstimate);
@@ -645,7 +643,6 @@ async function buyLST() {
             from: connectedAccount,
             value: '0x' + (ethAmount * Math.pow(10, 18)).toString(16), // Wei'ye çevir
             gas: gasEstimate, // Otomatik hesaplanan gas
-            data: memoDataHex,
             // gasPrice kaldırıldı - MetaMask otomatik ayarlayacak
         };
         
