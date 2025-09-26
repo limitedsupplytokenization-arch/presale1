@@ -452,7 +452,9 @@ html {
     flex: 1;
     background: linear-gradient(135deg, #4a90e2, #6a5acd, #20c997, #4a90e2);
     background-size: 400% 400%;
-    animation: gradientShift 8s ease infinite;
+    /* Different timing so it changes at a different pace */
+    animation: gradientShift 11s ease infinite;
+    animation-delay: 1.6s;
     color: #fff;
     border: 1px solid #000;
     border-radius: 25px;
