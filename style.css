@@ -96,10 +96,12 @@ html {
     overflow: auto;
 }
 
-/* Hide scrollbars for WebKit browsers as an extra measure */
-::-webkit-scrollbar {
-    width: 0px;
-    height: 0px;
+/* Hide scrollbars for WebKit browsers as an extra measure (desktop only) */
+@media (min-width: 769px) {
+    ::-webkit-scrollbar {
+        width: 0px;
+        height: 0px;
+    }
 }
 
 /* Re-enable scrolling on mobile while keeping desktop locked */
