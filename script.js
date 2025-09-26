@@ -171,7 +171,15 @@ function renderDiscountNotice() {
     notice.style.display = 'flex';
     notice.style.alignItems = 'center';
     notice.style.gap = '8px';
-    notice.innerHTML = `<i class="fas fa-badge-check" style="color:#28a745;"></i><span>You are eligible for a ${discountPercent}% discount for holding a Genesis NFT!</span>`;
+    // Farklı indirim oranları için farklı mesajlar
+    let discountMessage;
+    if (currentDiscountRate === 0.1) {
+        discountMessage = `You are eligible for a ${discountPercent}% discount for joining Testnet V1!`;
+    } else {
+        discountMessage = `You are eligible for a ${discountPercent}% discount for holding a Genesis NFT!`;
+    }
+    
+    notice.innerHTML = `<i class="fas fa-badge-check" style="color:#28a745;"></i><span>${discountMessage}</span>`;
 
     const presaleForm = document.getElementById('presaleForm');
     if (presaleForm) {
