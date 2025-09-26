@@ -788,6 +788,14 @@ body {
     .main-content {
         padding: 15px;
     }
+    .nav-item {
+        padding-right: 14px; /* reduce right padding on very small screens */
+    }
+    
+    .nav-item.disabled::after {
+        display: none; /* hide lock emoji to avoid overlap */
+    }
+
     
     .left-panel,
     .presale-interface,
