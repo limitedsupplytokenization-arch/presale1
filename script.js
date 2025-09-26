@@ -23,10 +23,110 @@ function updateCountdown() {
 }
 
 // Presale sabitleri
-const LST_PRICE_ETH = 0.000125; // 1 LST = 0.000125 ETH
+const LST_PRICE_ETH = 0.000125; // 1 LST = 0.000125 ETH (base price - no discount)
 const MIN_LST_AMOUNT = 10; // Minimum 10 LST
 const PRESALE_ADDRESS = '0xE2e7183C1b6d53812ecCB5f1D3B48757D5d03cF4'; // BASE ağı
 let connectedAccount = null;
+let currentDiscountRate = 0; // 0, 0.25, 0.5, 0.625
+
+// Genesis NFT sahipleri (indirim listeleri)
+const DISCOUNT_50_LIST = new Set([
+    '0xf886f144141a535126d63943aeeaef77759da71a',
+    '0x11217bf4da72c7b4425a83b4736699eec7444ec3',
+    '0xbad2c23dc0db47aa4dc0f7d668c7e11da9013a57',
+    '0xe59b8e526f8bfae05504ada2721069387cf45b77',
+    '0xf5d347b41e414f8e23f911305f28b1f1dd4855c5',
+    '0x5109bb177d097983c0764459445e2f890ea5f2ef',
+    '0x1a89f4063ae41ccc882b5947a629fb6bdd078ea1',
+    '0x2b1e78c4304d4962f80263e0ba299cf9ac5c41dc',
+    '0x6a7415b36133c6c3957e4772b8009068e170c648',
+    '0x5ffc6980fc0d00325805ce8954d342a77ff9cf42',
+    '0x6ce6e24c7469aae61548c15c235389ac8f1ea10a',
+]);
+
+const DISCOUNT_25_LIST = new Set([
+    '0x0fb44e60791f11c43dcbafc8ecf03502adeacb50',
+    '0xbf44162160de5a72d16264592b182e2fe30cf07a',
+    '0xb6a0a5093b94e3382773b80c420ad5a18b64a390',
+    '0xf2c5e22f21b07214e691a4c78b38fc6cfc9113f6',
+    '0x0fb44e60791f11c43dcbafc8ecf03502adeacb50', // duplicate ok
+    '0x599ab2f4e3cc0bef0e2c27c726f71b403b0a9328',
+    '0xc2ec7ed3305cb57dbb22cac8754c7ff54500743c',
+    '0xdeb0213cdb4c28787bc718256987c98503d28df6',
+    '0x057291bd078f28687009ec4f17672adf6fe88423',
+    '0x0bcb05ebeeeba9cf8d568f1c9e9413e7bc631dc3',
+    '0xd60999f2a9c581ddabab4a1a7272d131e93968ca',
+    '0xbc3502effa6815d7f9e7cd4e2f0232ea77690bef',
+    '0x766b3a974a296990e5d7fde6ebd88befa69754d5',
+    '0xd3a0cca0906777f7d9d2f88c87db9fa7868147fe',
+    '0x383549bf8ed3b9b5d64b11751f346e078cbb9f3d',
+    '0xE8d5f38f98cc39259063b53669335F5Da128D466',
+]);
+
+const DISCOUNT_62_5_LIST = new Set([
+    '0x77027545f635a4d988fffbce1a4d7a57ab661af5',
+    '0x60626bcc4b6f5392d87f425c32b84fa7442215ed',
+    '0x9aaefef1c92b615e7c5da93d5c7166767dac27ab',
+    '0x91628188530f7b93919c81eb4d5dfe9d93ecb5be',
+]);
+
+function determineDiscountRateForAddress(address) {
+    if (!address) return 0;
+    const addr = address.toLowerCase();
+    if (DISCOUNT_62_5_LIST.has(addr)) return 0.625; // 62.5% off
+    if (DISCOUNT_50_LIST.has(addr)) return 0.5; // 50% off
+    if (DISCOUNT_25_LIST.has(addr)) return 0.25; // 25% off
+    return 0;
+}
+
+function getEffectivePriceEth() {
+    // effective = base * (1 - discount)
+    return LST_PRICE_ETH * (1 - currentDiscountRate);
+}
+
+function renderDiscountNotice() {
+    // Remove existing if any
+    const existing = document.querySelector('.discount-notice');
+    if (existing) existing.remove();
+
+    if (currentDiscountRate <= 0) {
+        // also reset base price label
+        const priceLabel = document.querySelector('#presaleForm .price-info small');
+        if (priceLabel) {
+            priceLabel.textContent = `1 LST = ${LST_PRICE_ETH} ETH`;
+        }
+        return;
+    }
+
+    const discountPercent = Math.round(currentDiscountRate * 1000) / 10; // 62.5 etc
+    const effectivePrice = getEffectivePriceEth();
+
+    // Update price label under the input
+    const priceLabel = document.querySelector('#presaleForm .price-info small');
+    if (priceLabel) {
+        priceLabel.textContent = `1 LST = ${effectivePrice} ETH (discounted)`;
+    }
+
+    // Create a small notice above the form
+    const notice = document.createElement('div');
+    notice.className = 'discount-notice';
+    notice.style.margin = '8px 0 12px 0';
+    notice.style.padding = '10px 12px';
+    notice.style.borderRadius = '8px';
+    notice.style.background = 'rgba(40, 167, 69, 0.12)';
+    notice.style.border = '1px solid rgba(40, 167, 69, 0.35)';
+    notice.style.color = '#1e7e34';
+    notice.style.fontSize = '13px';
+    notice.style.display = 'flex';
+    notice.style.alignItems = 'center';
+    notice.style.gap = '8px';
+    notice.innerHTML = `<i class="fas fa-badge-check" style="color:#28a745;"></i><span>Genesis NFT'ye sahip olduğunuz için ${discountPercent}% indirim hakkı kazandınız!</span>`;
+
+    const presaleForm = document.getElementById('presaleForm');
+    if (presaleForm) {
+        presaleForm.parentNode.insertBefore(notice, presaleForm);
+    }
+}
 
 // Cüzdan bağlama fonksiyonu - YEREL DOSYA UYUMLU
 async function connectWallet() {
@@ -69,6 +169,10 @@ async function connectWallet() {
         
         connectedAccount = accounts[0];
         console.log('✅ Cüzdan başarıyla bağlandı:', connectedAccount);
+        
+        // İndirim oranını belirle
+        currentDiscountRate = determineDiscountRateForAddress(connectedAccount);
+        renderDiscountNotice();
         
         // Ağ kontrolü - BASE ağına geçiş
         await switchToBaseNetwork();
@@ -183,6 +287,7 @@ function showConnectedWallet(address) {
 // Cüzdan bağlantısını kes
 function disconnectWallet() {
     connectedAccount = null;
+    currentDiscountRate = 0;
     
     // Wallet info'yu kaldır
     const walletInfo = document.querySelector('.wallet-info');
@@ -193,6 +298,7 @@ function disconnectWallet() {
     // Connect butonunu göster, presale formunu gizle
     document.getElementById('connectBtn').style.display = 'block';
     document.getElementById('presaleForm').style.display = 'none';
+    renderDiscountNotice();
     
     // Formu temizle
     document.getElementById('lstAmount').value = '';
@@ -361,6 +467,8 @@ function setupMetaMaskListeners() {
             } else if (connectedAccount && accounts[0] !== connectedAccount) {
                 // Farklı hesaba geçmiş
                 connectedAccount = accounts[0];
+                currentDiscountRate = determineDiscountRateForAddress(connectedAccount);
+                renderDiscountNotice();
                 const walletInfo = document.querySelector('.wallet-info');
                 if (walletInfo) {
                     const shortAddress = accounts[0].slice(0, 6) + '...' + accounts[0].slice(-4);
@@ -418,7 +526,7 @@ function updateETHAmount() {
     
     if (lstInput && ethAmount && buyBtn) {
         const lstAmount = parseFloat(lstInput.value) || 0;
-        const ethCost = lstAmount * LST_PRICE_ETH;
+        const ethCost = lstAmount * getEffectivePriceEth();
         
         // ETH miktarını güncelle
         ethAmount.textContent = ethCost.toFixed(6) + ' ETH';
@@ -442,7 +550,7 @@ async function buyLST() {
     }
     
     const lstAmount = parseFloat(document.getElementById('lstAmount').value);
-    const ethAmount = lstAmount * LST_PRICE_ETH;
+    const ethAmount = lstAmount * getEffectivePriceEth();
     
     if (lstAmount < MIN_LST_AMOUNT) {
         showErrorMessage(`Minimum ${MIN_LST_AMOUNT} LST required!`);
