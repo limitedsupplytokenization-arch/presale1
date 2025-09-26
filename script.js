@@ -469,10 +469,7 @@ window.addEventListener('load', async function() {
     updateCountdown();
     setInterval(updateCountdown, 1000);
     
-    // Improve mobile scroll responsiveness: prevent passive touch blockers
-    try {
-        window.addEventListener('touchmove', function() {}, { passive: true });
-    } catch (e) {}
+    // Ensure no JS prevents mobile scroll; do not attach touchmove listeners here
     
     // İlerleme çubuğu animasyonunu başlat
     setTimeout(animateProgressBar, 1000);
@@ -737,11 +734,16 @@ function showSendAssets() {
         alert('Send Assets modal not found.');
         return;
     }
-    // Lock background scroll on mobile while modal is open
-    const previousOverflow = document.body.style.overflow;
-    modal.dataset.prevOverflow = previousOverflow || '';
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
+    // Lock background scroll only on desktop; keep mobile scroll free
+    const isDesktop = window.innerWidth > 768;
+    if (isDesktop) {
+        const previousOverflow = document.body.style.overflow;
+        modal.dataset.prevOverflow = previousOverflow || '';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+    } else {
+        modal.dataset.prevOverflow = '';
+    }
     modal.style.display = 'block';
     setTimeout(() => modal.classList.add('show'), 10);
 }
@@ -752,9 +754,11 @@ function closeSendAssets() {
     modal.classList.remove('show');
     setTimeout(() => { 
         modal.style.display = 'none'; 
-        // Restore background scroll
-        document.body.style.overflow = modal.dataset.prevOverflow || '';
-        document.documentElement.style.overflow = modal.dataset.prevOverflow || '';
+        // Restore background scroll (if it was changed)
+        if (modal.dataset.prevOverflow !== undefined) {
+            document.body.style.overflow = modal.dataset.prevOverflow || '';
+            document.documentElement.style.overflow = modal.dataset.prevOverflow || '';
+        }
     }, 300);
 }
 

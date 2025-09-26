@@ -112,11 +112,12 @@ html {
     }
 }
 
-/* Desktop: lock page scroll */
+/* Desktop: avoid hard lock to prevent edge cases; keep scroll but hide bar */
 @media (min-width: 769px) {
     html, body {
-        overflow: hidden;
+        overflow: auto;
     }
+    ::-webkit-scrollbar { width: 0px; height: 0px; }
 }
 
 .container {
