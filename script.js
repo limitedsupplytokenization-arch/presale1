@@ -132,7 +132,9 @@ function determineDiscountRateForAddress(address) {
 
 function getEffectivePriceEth() {
     // effective = base * (1 - discount)
-    return LST_PRICE_ETH * (1 - currentDiscountRate);
+    const price = LST_PRICE_ETH * (1 - currentDiscountRate);
+    // Ondalık basamak sayısını sınırla (maksimum 6 basamak)
+    return parseFloat(price.toFixed(6));
 }
 
 function renderDiscountNotice() {
