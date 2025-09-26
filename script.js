@@ -71,6 +71,42 @@ const DISCOUNT_62_5_LIST = new Set([
     '0x6C93Eb73573910853ea8b2AB3B78BB73952BCF49',
 ]);
 
+// 12 bin cüzdan adresi için %10 indirim listesi
+// JSON dosyasından yüklenecek
+const DISCOUNT_10_LIST = new Set();
+
+// JSON dosyasından cüzdan adreslerini yükleme fonksiyonu
+async function loadWalletAddresses() {
+    try {
+        console.log('🔄 wallets.json dosyası yükleniyor...');
+        const response = await fetch('wallets.json');
+        if (!response.ok) {
+            throw new Error(`wallets.json dosyası bulunamadı. HTTP Status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('📄 JSON dosyası yüklendi:', data);
+        
+        // Cüzdan adreslerini Set'e ekle
+        if (data.discount_wallets && Array.isArray(data.discount_wallets)) {
+            data.discount_wallets.forEach(addr => {
+                DISCOUNT_10_LIST.add(addr.toLowerCase());
+            });
+            
+            console.log(`✅ ${data.discount_wallets.length} cüzdan adresi yüklendi (%10 indirim)`);
+            console.log(`📊 Toplam indirim oranı: %${(data.discount_rate * 100)}`);
+            return data.discount_wallets.length;
+        } else {
+            throw new Error('JSON dosyasında discount_wallets array bulunamadı');
+        }
+        
+    } catch (error) {
+        console.error('❌ Cüzdan adresleri yüklenirken hata:', error);
+        console.log('💡 wallets.json dosyasını oluşturup cüzdan adreslerini ekleyin');
+        return 0;
+    }
+}
+
 // Normalize lists to lowercase to avoid checksum/case mismatches
 (function normalizeDiscountLists() {
     function lowerize(setRef) {
@@ -81,6 +117,7 @@ const DISCOUNT_62_5_LIST = new Set([
     lowerize(DISCOUNT_50_LIST);
     lowerize(DISCOUNT_25_LIST);
     lowerize(DISCOUNT_62_5_LIST);
+    lowerize(DISCOUNT_10_LIST);
 })();
 
 function determineDiscountRateForAddress(address) {
@@ -89,6 +126,7 @@ function determineDiscountRateForAddress(address) {
     if (DISCOUNT_62_5_LIST.has(addr)) return 0.625; // 62.5% off
     if (DISCOUNT_50_LIST.has(addr)) return 0.5; // 50% off
     if (DISCOUNT_25_LIST.has(addr)) return 0.25; // 25% off
+    if (DISCOUNT_10_LIST.has(addr)) return 0.1; // 10% off
     return 0;
 }
 
@@ -473,6 +511,9 @@ window.addEventListener('load', async function() {
     
     // İlerleme çubuğu animasyonunu başlat
     setTimeout(animateProgressBar, 1000);
+    
+    // JSON dosyasından cüzdan adreslerini yükle (%10 indirim listesi)
+    await loadWalletAddresses();
     
     // MetaMask kontrolü - bekle
     const ethereum = await waitForMetaMask();
