@@ -238,7 +238,20 @@ async function connectWallet() {
     try {
         console.log('✅ MetaMask bulundu, hesap istekleri başlatılıyor...');
         
-        // MetaMask popup'ını aç
+        // MetaMask popup'ını aç - kullanıcıyı hesap seçmeye zorla
+        // Önce mevcut hesapları kontrol et
+        const currentAccounts = await window.ethereum.request({ 
+            method: 'eth_accounts' 
+        });
+        
+        // Eğer zaten bağlı hesap varsa, kullanıcıyı farklı hesap seçmeye zorla
+        if (currentAccounts && currentAccounts.length > 0) {
+            const switchAccount = confirm('You are already connected to a wallet. Do you want to switch to a different account?');
+            if (!switchAccount) {
+                return;
+            }
+        }
+        
         const accounts = await window.ethereum.request({ 
             method: 'eth_requestAccounts' 
         });
@@ -354,7 +367,7 @@ function showConnectedWallet(address) {
             <i class="fas fa-check-circle"></i>
             <span>Connected: ${shortAddress}</span>
             <div class="wallet-actions">
-                <button onclick="disconnectWallet()" class="disconnect-btn">Logout</button>
+                <button onclick="disconnectWallet().catch(console.error)" class="disconnect-btn">Logout</button>
                 <button onclick="switchWallet()" class="switch-btn">Switch Wallet</button>
             </div>
         </div>
@@ -397,7 +410,7 @@ async function disconnectWallet() {
     if (progressSection) progressSection.style.display = 'block';
     if (presaleInterface) presaleInterface.classList.remove('wallet-connected');
     
-    // MetaMask'tan gerçekten çıkış yap - daha agresif yaklaşım
+    // MetaMask'tan gerçekten çıkış yap - farklı yaklaşım
     if (window.ethereum) {
         try {
             // MetaMask'ın disconnect metodunu dene
@@ -433,12 +446,7 @@ async function disconnectWallet() {
         }
     }
     
-    // Sayfayı yenile - bu en etkili yöntem
-    setTimeout(() => {
-        window.location.reload();
-    }, 1000);
-    
-    showSuccessMessage('Wallet disconnected successfully! Page will refresh to ensure complete disconnection.');
+    showSuccessMessage('Wallet disconnected successfully! You can now connect with a different wallet.');
 }
 
 // Cüzdan değiştir
