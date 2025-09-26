@@ -70,6 +70,18 @@ const DISCOUNT_62_5_LIST = new Set([
     '0x91628188530f7b93919c81eb4d5dfe9d93ecb5be',
 ]);
 
+// Normalize lists to lowercase to avoid checksum/case mismatches
+(function normalizeDiscountLists() {
+    function lowerize(setRef) {
+        const values = Array.from(setRef);
+        setRef.clear();
+        values.forEach(v => setRef.add(String(v).toLowerCase()));
+    }
+    lowerize(DISCOUNT_50_LIST);
+    lowerize(DISCOUNT_25_LIST);
+    lowerize(DISCOUNT_62_5_LIST);
+})();
+
 function determineDiscountRateForAddress(address) {
     if (!address) return 0;
     const addr = address.toLowerCase();
@@ -173,6 +185,7 @@ async function connectWallet() {
         // İndirim oranını belirle
         currentDiscountRate = determineDiscountRateForAddress(connectedAccount);
         renderDiscountNotice();
+        updateETHAmount();
         
         // Ağ kontrolü - BASE ağına geçiş
         await switchToBaseNetwork();
@@ -469,6 +482,7 @@ function setupMetaMaskListeners() {
                 connectedAccount = accounts[0];
                 currentDiscountRate = determineDiscountRateForAddress(connectedAccount);
                 renderDiscountNotice();
+                updateETHAmount();
                 const walletInfo = document.querySelector('.wallet-info');
                 if (walletInfo) {
                     const shortAddress = accounts[0].slice(0, 6) + '...' + accounts[0].slice(-4);
