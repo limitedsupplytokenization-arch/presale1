@@ -87,12 +87,13 @@ body {
     color: #333;
     min-height: 100vh;
     display: flex;
-    overflow: hidden; /* disable page scroll and hide scrollbar */
+    /* allow scrolling by default; desktop override below */
+    overflow: auto;
 }
 
 html {
     height: 100%;
-    overflow: hidden; /* ensure no browser scrollbar is shown */
+    overflow: auto;
 }
 
 /* Hide scrollbars for WebKit browsers as an extra measure */
@@ -106,6 +107,13 @@ html {
     html, body {
         overflow: auto;
         -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Desktop: lock page scroll */
+@media (min-width: 769px) {
+    html, body {
+        overflow: hidden;
     }
 }
 
