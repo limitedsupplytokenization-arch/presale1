@@ -366,7 +366,7 @@ function showConnectedWallet(address) {
 }
 
 // Cüzdan bağlantısını kes
-function disconnectWallet() {
+async function disconnectWallet() {
     connectedAccount = null;
     currentDiscountRate = 0;
     
@@ -397,24 +397,31 @@ function disconnectWallet() {
     if (progressSection) progressSection.style.display = 'block';
     if (presaleInterface) presaleInterface.classList.remove('wallet-connected');
     
-    // MetaMask'tan tamamen çıkış yap
+    // MetaMask'tan gerçekten çıkış yap
     if (window.ethereum) {
-        // MetaMask'tan çıkış yapmak için kullanıcıyı yönlendir
         try {
             // MetaMask'ın disconnect metodunu dene (eğer varsa)
             if (window.ethereum.disconnect) {
-                window.ethereum.disconnect();
+                await window.ethereum.disconnect();
             }
-            // Alternatif: MetaMask'ı sıfırla
+            
+            // MetaMask'ın provider'ını sıfırla
             if (window.ethereum._metamask) {
                 window.ethereum._metamask.isUnlocked = false;
             }
+            
+            // Provider'ı tamamen temizle
+            if (window.ethereum.removeAllListeners) {
+                window.ethereum.removeAllListeners();
+            }
+            
+            console.log('🔌 MetaMask bağlantısı tamamen kesildi');
         } catch (error) {
             console.log('MetaMask disconnect not available:', error);
         }
     }
     
-    showSuccessMessage('Wallet disconnected successfully! Please refresh the page to completely disconnect from MetaMask.');
+    showSuccessMessage('Wallet disconnected successfully! You can now connect with a different wallet.');
 }
 
 // Cüzdan değiştir
