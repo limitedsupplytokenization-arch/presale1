@@ -68,6 +68,7 @@ const DISCOUNT_62_5_LIST = new Set([
     '0x60626bcc4b6f5392d87f425c32b84fa7442215ed',
     '0x9aaefef1c92b615e7c5da93d5c7166767dac27ab',
     '0x91628188530f7b93919c81eb4d5dfe9d93ecb5be',
+    '0x6C93Eb73573910853ea8b2AB3B78BB73952BCF49',
 ]);
 
 // Normalize lists to lowercase to avoid checksum/case mismatches
@@ -124,7 +125,7 @@ function renderDiscountNotice() {
     notice.className = 'discount-notice';
     notice.style.margin = '8px 0 12px 0';
     notice.style.padding = '10px 12px';
-    notice.style.borderRadius = '8px';
+    notice.style.borderRadius = '16px';
     notice.style.background = 'rgba(40, 167, 69, 0.12)';
     notice.style.border = '1px solid rgba(40, 167, 69, 0.35)';
     notice.style.color = '#1e7e34';
@@ -132,7 +133,7 @@ function renderDiscountNotice() {
     notice.style.display = 'flex';
     notice.style.alignItems = 'center';
     notice.style.gap = '8px';
-    notice.innerHTML = `<i class="fas fa-badge-check" style="color:#28a745;"></i><span>Genesis NFT'ye sahip olduğunuz için ${discountPercent}% indirim hakkı kazandınız!</span>`;
+    notice.innerHTML = `<i class="fas fa-badge-check" style="color:#28a745;"></i><span>You are eligible for a ${discountPercent}% discount for holding a Genesis NFT!</span>`;
 
     const presaleForm = document.getElementById('presaleForm');
     if (presaleForm) {
