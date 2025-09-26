@@ -244,10 +244,8 @@ async function connectWallet() {
         
         // Eğer zaten bağlı hesap varsa, kullanıcıyı farklı hesap seçmeye zorla
         if (currentAccounts && currentAccounts.length > 0) {
-            const switchAccount = confirm('You are already connected to a wallet. Do you want to switch to a different account?');
-            if (!switchAccount) {
-                return;
-            }
+            console.log('⚠️ Mevcut hesaplar var:', currentAccounts);
+            // Uyarı kaldırıldı - doğrudan devam et
         }
         
         const accounts = await window.ethereum.request({ 
