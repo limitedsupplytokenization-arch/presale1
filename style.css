@@ -410,7 +410,9 @@ html {
 /* Connect Wallet Butonu */
 .connect-wallet-btn {
     flex: 1;
-    background: #4a90e2;
+    background: linear-gradient(135deg, #4a90e2, #6a5acd, #20c997, #4a90e2);
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
     color: #fff;
     border: 1px solid #000;
     border-radius: 25px;
@@ -435,7 +437,7 @@ html {
 }
 
 .connect-wallet-btn:hover {
-    background: #357abd;
+    /* keep gradient on hover */
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3), 0 0 0 1px #000;
     border-color: #000;
@@ -448,7 +450,9 @@ html {
 /* Send Assets Butonu */
 .send-assets-btn {
     flex: 1;
-    background: #4a90e2;
+    background: linear-gradient(135deg, #4a90e2, #6a5acd, #20c997, #4a90e2);
+    background-size: 400% 400%;
+    animation: gradientShift 8s ease infinite;
     color: #fff;
     border: 1px solid #000;
     border-radius: 25px;
@@ -466,7 +470,7 @@ html {
 }
 
 .send-assets-btn:hover {
-    background: #357abd;
+    /* keep gradient on hover */
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3), 0 0 0 1px #000;
     border-color: #000;
@@ -687,6 +691,13 @@ html {
 
 .tx-success a:hover {
     text-decoration: underline;
+}
+
+/* Animated gradient for primary buttons */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 /* Sosyal Medya Bölümü */
