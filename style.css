@@ -724,10 +724,15 @@ body {
     .sidebar {
         width: 100%;
         padding: 15px;
+        position: static;
     }
     
     .nav-items {
         gap: 5px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
     }
     
     .nav-item {
@@ -763,6 +768,20 @@ body {
     .detail-item .value {
         font-size: 13px;
     }
+    
+    .presale-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .wallet-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .or-divider {
+        display: none;
+    }
 }
 
 @media (max-width: 480px) {
@@ -778,6 +797,17 @@ body {
     
     .countdown-timer {
         font-size: 28px;
+    }
+    
+    .panel-header h2 {
+        font-size: 20px;
+    }
+    
+    .connect-wallet-btn,
+    .send-assets-btn {
+        min-height: 54px;
+        font-size: 13px;
+        border-radius: 22px;
     }
     
     .social-links {
