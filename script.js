@@ -368,7 +368,7 @@ function showConnectedWallet(address) {
             <i class="fas fa-check-circle"></i>
             <span>Connected: ${shortAddress}</span>
             <div class="wallet-actions">
-                <button onclick="disconnectWallet().catch(console.error)" class="disconnect-btn">Logout</button>
+                <button onclick="disconnectWallet()" class="disconnect-btn">Logout</button>
                 <button onclick="switchWallet()" class="switch-btn">Switch Wallet</button>
             </div>
         </div>
@@ -380,7 +380,7 @@ function showConnectedWallet(address) {
 }
 
 // Cüzdan bağlantısını kes
-async function disconnectWallet() {
+function disconnectWallet() {
     console.log('🔌 Disconnect başlatılıyor, mevcut hesap:', connectedAccount);
     connectedAccount = null;
     currentDiscountRate = 0;
@@ -413,37 +413,14 @@ async function disconnectWallet() {
     if (progressSection) progressSection.style.display = 'block';
     if (presaleInterface) presaleInterface.classList.remove('wallet-connected');
     
-    // MetaMask'tan gerçekten çıkış yap - farklı yaklaşım
+    // MetaMask'tan çıkış yap
     if (window.ethereum) {
         try {
             // MetaMask'ın disconnect metodunu dene
             if (window.ethereum.disconnect) {
-                await window.ethereum.disconnect();
+                window.ethereum.disconnect();
             }
-            
-            // MetaMask'ın provider'ını tamamen sıfırla
-            if (window.ethereum._metamask) {
-                window.ethereum._metamask.isUnlocked = false;
-                window.ethereum._metamask.isEnabled = false;
-            }
-            
-            // Provider'ı tamamen temizle
-            if (window.ethereum.removeAllListeners) {
-                window.ethereum.removeAllListeners();
-            }
-            
-            // MetaMask'ın internal state'ini sıfırla
-            if (window.ethereum._state) {
-                window.ethereum._state.accounts = [];
-                window.ethereum._state.isConnected = false;
-            }
-            
-            // MetaMask'ın cache'ini temizle
-            if (window.ethereum._handleAccountsChanged) {
-                window.ethereum._handleAccountsChanged = null;
-            }
-            
-            console.log('🔌 MetaMask bağlantısı tamamen kesildi');
+            console.log('🔌 MetaMask bağlantısı kesildi');
         } catch (error) {
             console.log('MetaMask disconnect not available:', error);
         }
