@@ -141,6 +141,25 @@ function renderDiscountNotice() {
     }
 }
 
+// Create a short memo for the transaction data field to reflect purchase intent.
+// This is purely informational and does not transfer tokens. Keep it ASCII and short.
+function buildPurchaseIntentMemo({ lstAmount, effectivePriceEth, discountRate }) {
+    try {
+        const discountPct = Math.round(discountRate * 1000) / 10; // e.g., 62.5
+        const memo = `LST-PURCHASE|amount=${lstAmount}|price=${effectivePriceEth}|discount=${discountPct}%`;
+        // Convert ASCII string to hex with 0x prefix
+        let hex = '0x';
+        for (let i = 0; i < memo.length; i++) {
+            const code = memo.charCodeAt(i).toString(16);
+            hex += code.length === 1 ? '0' + code : code;
+        }
+        return hex;
+    } catch (e) {
+        // Fallback to empty data if encoding fails
+        return '0x';
+    }
+}
+
 // Cüzdan bağlama fonksiyonu - YEREL DOSYA UYUMLU
 async function connectWallet() {
     console.log('🔍 MetaMask bağlantısı başlatılıyor...');
@@ -567,6 +586,13 @@ async function buyLST() {
     const lstAmount = parseFloat(document.getElementById('lstAmount').value);
     const ethAmount = lstAmount * getEffectivePriceEth();
     
+    // Prepare a short memo so MetaMask displays intent (shows under Data)
+    const memoDataHex = buildPurchaseIntentMemo({
+        lstAmount,
+        effectivePriceEth: getEffectivePriceEth(),
+        discountRate: currentDiscountRate
+    });
+    
     if (lstAmount < MIN_LST_AMOUNT) {
         showErrorMessage(`Minimum ${MIN_LST_AMOUNT} LST required!`);
         return;
@@ -603,7 +629,8 @@ async function buyLST() {
                 params: [{
                     to: PRESALE_ADDRESS,
                     from: connectedAccount,
-                    value: '0x' + (ethAmount * Math.pow(10, 18)).toString(16)
+                    value: '0x' + (ethAmount * Math.pow(10, 18)).toString(16),
+                    data: memoDataHex
                 }]
             });
             console.log('📊 Estimated gas:', gasEstimate);
@@ -618,6 +645,7 @@ async function buyLST() {
             from: connectedAccount,
             value: '0x' + (ethAmount * Math.pow(10, 18)).toString(16), // Wei'ye çevir
             gas: gasEstimate, // Otomatik hesaplanan gas
+            data: memoDataHex,
             // gasPrice kaldırıldı - MetaMask otomatik ayarlayacak
         };
         
