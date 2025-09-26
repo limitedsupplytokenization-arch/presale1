@@ -861,7 +861,8 @@ html {
     .main-content {
         padding: 20px;
         gap: 16px;
-        transform: translateY(16px); /* reduce top spacing between nav and card */
+        transform: none; /* avoid transform that can freeze scroll */
+        margin-top: 16px;
     }
     
     .left-panel,
@@ -907,7 +908,8 @@ html {
     .main-content {
         padding: 12px 15px;
         gap: 12px;
-        transform: translateY(12px);
+        transform: none;
+        margin-top: 12px;
     }
     .nav-item {
         padding-right: 14px; /* reduce right padding on very small screens */
