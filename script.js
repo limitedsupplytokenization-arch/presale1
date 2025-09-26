@@ -397,22 +397,34 @@ async function disconnectWallet() {
     if (progressSection) progressSection.style.display = 'block';
     if (presaleInterface) presaleInterface.classList.remove('wallet-connected');
     
-    // MetaMask'tan gerçekten çıkış yap
+    // MetaMask'tan gerçekten çıkış yap - daha agresif yaklaşım
     if (window.ethereum) {
         try {
-            // MetaMask'ın disconnect metodunu dene (eğer varsa)
+            // MetaMask'ın disconnect metodunu dene
             if (window.ethereum.disconnect) {
                 await window.ethereum.disconnect();
             }
             
-            // MetaMask'ın provider'ını sıfırla
+            // MetaMask'ın provider'ını tamamen sıfırla
             if (window.ethereum._metamask) {
                 window.ethereum._metamask.isUnlocked = false;
+                window.ethereum._metamask.isEnabled = false;
             }
             
             // Provider'ı tamamen temizle
             if (window.ethereum.removeAllListeners) {
                 window.ethereum.removeAllListeners();
+            }
+            
+            // MetaMask'ın internal state'ini sıfırla
+            if (window.ethereum._state) {
+                window.ethereum._state.accounts = [];
+                window.ethereum._state.isConnected = false;
+            }
+            
+            // MetaMask'ın cache'ini temizle
+            if (window.ethereum._handleAccountsChanged) {
+                window.ethereum._handleAccountsChanged = null;
             }
             
             console.log('🔌 MetaMask bağlantısı tamamen kesildi');
@@ -421,7 +433,12 @@ async function disconnectWallet() {
         }
     }
     
-    showSuccessMessage('Wallet disconnected successfully! You can now connect with a different wallet.');
+    // Sayfayı yenile - bu en etkili yöntem
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
+    
+    showSuccessMessage('Wallet disconnected successfully! Page will refresh to ensure complete disconnection.');
 }
 
 // Cüzdan değiştir
