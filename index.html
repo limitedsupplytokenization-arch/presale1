@@ -189,6 +189,63 @@
             </div>
         </main>
     </div>
+    
+    <!-- Send Assets Modal (Buy LST content from KOpya) -->
+    <div id="sendAssetsModal" class="modal">
+        <div class="modal-content buy-lst-modal">
+            <div class="modal-header">
+                <h2>Send assets here to get $LST</h2>
+                <button onclick="closeSendAssets()" style="background: red; color: white; border: none; padding: 10px; margin-left: 10px; border-radius: 25px;">CLOSE</button>
+            </div>
+            <div class="modal-body">
+                <div class="wallet-addresses">
+                    <div class="address-item">
+                        <div class="crypto-info">
+                            <h3>ETH</h3>
+                            <p class="address">0x6a24194CB4b134d1b2f5a4F6D0d3E80665D553e3</p>
+                            <button class="copy-btn" onclick="copyAddress('0x6a24194CB4b134d1b2f5a4F6D0d3E80665D553e3', this)">Copy</button>
+                        </div>
+                        <div class="qr-code">
+                            <img src="eth-usdc-qr.png" alt="ETH QR Code" class="qr-image">
+                        </div>
+                    </div>
+                    <div class="address-item">
+                        <div class="crypto-info">
+                            <h3>SOL</h3>
+                            <p class="address">5X2uhTfHdjYr72hALFPPk7Jp8pvJgN2FeMg547AGiy3P</p>
+                            <button class="copy-btn" onclick="copyAddress('5X2uhTfHdjYr72hALFPPk7Jp8pvJgN2FeMg547AGiy3P', this)">Copy</button>
+                        </div>
+                        <div class="qr-code">
+                            <img src="sol-qr.png" alt="SOL QR Code" class="qr-image">
+                        </div>
+                    </div>
+                    <div class="address-item">
+                        <div class="crypto-info">
+                            <h3>USDC</h3>
+                            <p class="address">0x6a24194CB4b134d1b2f5a4F6D0d3E80665D553e3</p>
+                            <button class="copy-btn" onclick="copyAddress('0x6a24194CB4b134d1b2f5a4F6D0d3E80665D553e3', this)">Copy</button>
+                        </div>
+                        <div class="qr-code">
+                            <img src="eth-usdc-qr.png" alt="USDC QR Code" class="qr-image">
+                        </div>
+                    </div>
+                    <div class="address-item">
+                        <div class="crypto-info">
+                            <h3>USDT TRC20</h3>
+                            <p class="address">TUBGMEMPibciWJxRJXmxvteEy9pVfkdMr3</p>
+                            <button class="copy-btn" onclick="copyAddress('TUBGMEMPibciWJxRJXmxvteEy9pVfkdMr3', this)">Copy</button>
+                        </div>
+                        <div class="qr-code">
+                            <img src="usdt-qr.png" alt="USDT TRC20 QR Code" class="qr-image">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-note">
+                    <p>⚠️ Send only the supported cryptocurrencies to the addresses above. Double-check the address before sending.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

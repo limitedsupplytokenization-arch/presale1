@@ -727,7 +727,34 @@ async function switchToBaseNetwork() {
 
 // Send Assets butonu fonksiyonu
 function showSendAssets() {
-    alert('Send Assets feature coming soon!\n\nQR codes and wallet addresses will be displayed here.');
+    const modal = document.getElementById('sendAssetsModal');
+    if (!modal) {
+        alert('Send Assets modal not found.');
+        return;
+    }
+    modal.style.display = 'block';
+    setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function closeSendAssets() {
+    const modal = document.getElementById('sendAssetsModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
+}
+
+function copyAddress(text, btn) {
+    try {
+        navigator.clipboard.writeText(text).then(() => {
+            if (btn) {
+                const original = btn.textContent;
+                btn.textContent = 'Copied';
+                setTimeout(() => { btn.textContent = original; }, 1200);
+            }
+        });
+    } catch (e) {
+        alert('Copy failed');
+    }
 }
 
 // Contract adresi kopyalama
