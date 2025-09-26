@@ -469,6 +469,11 @@ window.addEventListener('load', async function() {
     updateCountdown();
     setInterval(updateCountdown, 1000);
     
+    // Improve mobile scroll responsiveness: prevent passive touch blockers
+    try {
+        window.addEventListener('touchmove', function() {}, { passive: true });
+    } catch (e) {}
+    
     // İlerleme çubuğu animasyonunu başlat
     setTimeout(animateProgressBar, 1000);
     
