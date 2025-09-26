@@ -92,6 +92,14 @@ html {
     height: 0px;
 }
 
+/* Re-enable scrolling on mobile while keeping desktop locked */
+@media (max-width: 768px) {
+    html, body {
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 .container {
     display: flex;
     width: 100%;
